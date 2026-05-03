@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}ByteBid - Menang dengan Penawaran Terbaik{% endblock %}
+{% block head %}
+<style>
+  .hero {
+    background: linear-gradient(135deg, var(--bg2) 0%, #0d0d18 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 5rem 0 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -50%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,23,58,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--red-dim); border: 1px solid rgba(232,23,58,0.3);
+    color: var(--red); padding: .35rem .9rem; border-radius: 20px;
+    font-size: .78rem; font-weight: 600; margin-bottom: 1.5rem;
+  }
+  .hero-tag::before { content: '●'; font-size: .5rem; animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+    line-height: 1.1; font-weight: 800;
+    margin-bottom: 1rem;
+  }
+  .hero h1 .accent { color: var(--red); }
+  .hero-desc { color: var(--muted); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 1rem; }
+  .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+  .stat { padding: 1.5rem 1rem; text-align: center; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-val { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; }
+  .stat-label { font-size: .8rem; color: var(--muted); }
+
+  /* featured card */
+  .featured-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px; overflow: hidden;
+    position: relative;
+  }
+  .fc-img { height: 240px; background: #0a0a12; overflow: hidden; }
+  .fc-img img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .fc-body { padding: 1.25rem; }
+  .fc-name { font-weight: 700; font-size: 1rem; }
+  .fc-sub { font-size: .8rem; color: var(--muted); margin-bottom: 1rem; }
+  .fc-price { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--red); }
+
+  .section-header { margin-bottom: 2rem; }
+  .section-header h2 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; }
+  .section-header h2 span { color: var(--red); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">LELANG SEDANG BERLANGSUNG</div>
+      <h1>Menang dengan Penawaran <span class="accent">Terbaik</span></h1>
+      <p class="hero-desc">Platform lelang online yang transparan dan real-time. Temukan barang terbaik, ajukan penawaran, dan menangkan lelang.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('lelang') }}" class="btn btn-red btn-lg">Lihat Lelang</a>
+        <a href="{{ url_for('cara_kerja') }}" class="btn btn-outline btn-lg">Cara Kerja</a>
+      </div>
+    </div>
+
+    <!-- Featured item -->
+    {% set feat = items[0] %}
+    <div class="featured-card">
+      <div class="fc-img">
+        <img src="{{ feat.image }}" alt="{{ feat.name }}" onerror="this.src='https://via.placeholder.com/300x200/0d0d12/444?text=ByteBid'"/>
+      </div>
+      <div class="fc-body">
+        <div class="fc-name">{{ feat.name }}</div>
+        <div class="fc-sub">{{ feat.condition }}</div>
+        <div class="bid-label">PENAWARAN SAAT INI</div>
+        <div class="fc-price">{{ feat.current_bid | rupiah }}</div>
+        <div class="timer">Berakhir dalam {{ feat.timer }}</div>
+        <a href="{{ url_for('ajukan', item_id=feat.id) }}" class="btn btn-red btn-block mt-2" style="margin-top:.75rem">
+          Ajukan Penawaran →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- stats -->
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-val text-green">1.2K+</div>
+        <div class="stat-label">Lelang Selesai</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" style="color:var(--cyan)">8.4K+</div>
+        <div class="stat-label">Pengguna Aktif</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val text-green">99%</div>
+        <div class="stat-label">Tingkat Kepercayaan</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVE AUCTIONS -->
+<section class="section">
+  <div class="container">
+    <div class="section-header flex justify-between items-center">
+      <h2>Lelang <span>Aktif</span></h2>
+      <a href="{{ url_for('lelang') }}" class="btn btn-ghost">Lihat Semua →</a>
+    </div>
+    <div class="grid-3">
+      {% for item in items %}
+      <div class="auction-card">
+        <div class="card-img">
+          <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://via.placeholder.com/300x180/0d0d12/444?text=ByteBid'"/>
+          <span class="badge {% if item.badge == 'Segera Berakhir' %}badge-red{% else %}badge-green{% endif %}">
+            {{ item.badge }}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">{{ item.name }}</div>
+          <div class="card-sub">{{ item.condition }}</div>
+          <div class="bid-label">PENAWARAN SAAT INI</div>
+          <div class="bid-price">{{ item.current_bid | rupiah }}</div>
+          <div class="timer">{{ item.timer }}</div>
+        </div>
+        <div class="card-footer">
+          <a href="{{ url_for('ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
