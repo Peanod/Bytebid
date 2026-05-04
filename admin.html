@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .admin-page{padding:2.5rem 0}
+  .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+  .admin-header h1{font-family:'Outfit',sans-serif;font-size:1.8rem;font-weight:800}
+  .admin-header h1 span{color:var(--red)}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
+  .stat-box .val{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--red)}
+  .stat-box .lbl{font-size:.75rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.05em}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+  .panel h2{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:.875rem}
+  th{color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:.75rem}
+  .item-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover}
+  .row-actions{display:flex;gap:.5rem}
+  .btn-sm{padding:.35rem .75rem;font-size:.78rem;border-radius:6px}
+  .status-active{color:var(--green);font-weight:600}
+  .status-ended{color:var(--muted)}
+  .status-cancelled{color:var(--red)}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:2rem}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer}
+
+  @media(max-width:768px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="admin-page">
+  <div class="container">
+    <div class="admin-header">
+      <h1>Admin <span>Dashboard</span></h1>
+      <button id="add-item-btn" class="btn btn-red">+ Tambah Barang</button>
+    </div>
+
+    <div id="stats-container" class="loading"><div class="spinner"></div></div>
+
+    <div class="panel">
+      <h2>Daftar Barang Lelang</h2>
+      <div id="items-table" class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal: Add/Edit Item -->
+<div id="item-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Tambah Barang</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-error" class="error-msg" style="display:none"></div>
+    <form id="item-form">
+      <input type="hidden" name="id"/>
+      <div class="form-group">
+        <label class="form-label">Nama Barang</label>
+        <input class="form-input" name="name" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select class="form-input" name="category" required>
+          <option value="Elektronik">Elektronik</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Seni">Seni</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kondisi</label>
+        <input class="form-input" name="condition" placeholder="mis. Kondisi Baru/Bekas"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi</label>
+        <textarea class="form-input" name="description" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Harga Awal (Rp)</label>
+        <input class="form-input" type="number" name="start_price" required min="1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Durasi Lelang (menit)</label>
+        <input class="form-input" type="number" name="duration_minutes" value="30" required min="1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Upload Gambar</label>
+        <input class="form-input" type="file" name="image" accept="image/*"/>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem">
+          Atau pakai URL gambar di bawah
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Gambar (opsional)</label>
+        <input class="form-input" name="image_url" placeholder="https://..."/>
+      </div>
+      <button type="submit" id="save-btn" class="btn btn-red btn-block" style="width:100%;padding:.85rem">
+        Simpan
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const user = ByteBid.auth.currentUser();
+if (!ByteBid.auth.isAuthenticated() || !user?.is_admin) {
+  ByteBid.toast('Halaman ini hanya untuk admin', 'error');
+  setTimeout(() => window.location.href = '/login', 800);
+}
+
+async function loadDashboard() {
+  try {
+    const data = await ByteBid.admin.dashboard();
+    const s = data.stats;
+    document.getElementById('stats-container').classList.remove('loading');
+    document.getElementById('stats-container').innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-box"><div class="val">${s.total_items}</div><div class="lbl">Total Barang</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--green)">${s.active_items}</div><div class="lbl">Aktif</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--muted)">${s.ended_items}</div><div class="lbl">Selesai</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--cyan)">${s.total_users}</div><div class="lbl">User</div></div>
+        <div class="stat-box"><div class="val">${s.total_bids}</div><div class="lbl">Total Bid</div></div>
+      </div>`;
+    await loadItemsTable();
+  } catch (err) {
+    document.getElementById('stats-container').innerHTML =
+      `<div class="error-msg">${err.message}</div>`;
+  }
+}
+
+async function loadItemsTable() {
+  const cont = document.getElementById('items-table');
+  cont.classList.add('loading');
+  cont.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await ByteBid.items.list({ status: 'all', per_page: 50 });
+    cont.classList.remove('loading');
+    cont.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Gambar</th><th>Nama</th><th>Kategori</th><th>Harga</th>
+              <th>Bid</th><th>Status</th><th>Timer</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+          ${data.items.map(it => `
+            <tr>
+              <td><img class="item-thumb" src="${ByteBid.escapeHtml(it.image)}" onerror="this.style.display='none'"/></td>
+              <td><strong>${ByteBid.escapeHtml(it.name)}</strong></td>
+              <td>${ByteBid.escapeHtml(it.category)}</td>
+              <td>${ByteBid.formatRupiah(it.current_bid)}</td>
+              <td>${it.total_bids}</td>
+              <td><span class="status-${it.status}">${it.status}</span></td>
+              <td>${it.timer}</td>
+              <td>
+                <div class="row-actions">
+                  <a href="/pantau/${it.id}" class="btn btn-ghost btn-sm">Lihat</a>
+                  ${it.status === 'active' ? `<button class="btn btn-outline btn-sm" onclick="endItem(${it.id})">Akhiri</button>` : ''}
+                  <button class="btn btn-ghost btn-sm" onclick="deleteItem(${it.id})">Hapus</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      ${data.items.length === 0 ? '<div style="padding:2rem;text-align:center;color:var(--muted)">Belum ada barang</div>' : ''}
+    `;
+  } catch (err) {
+    cont.innerHTML = `<div class="error-msg">${err.message}</div>`;
+  }
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+function openModal() { document.getElementById('item-modal').classList.add('open'); }
+function closeModal() {
+  document.getElementById('item-modal').classList.remove('open');
+  document.getElementById('item-form').reset();
+  document.getElementById('modal-error').style.display = 'none';
+}
+
+document.getElementById('add-item-btn').addEventListener('click', () => {
+  document.getElementById('modal-title').textContent = 'Tambah Barang';
+  openModal();
+});
+
+document.getElementById('item-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  // Hapus image kosong agar tidak override saat URL dipakai
+  if (!fd.get('image') || fd.get('image').size === 0) fd.delete('image');
+
+  const errBox = document.getElementById('modal-error');
+  const btn = document.getElementById('save-btn');
+  errBox.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+  try {
+    await ByteBid.admin.createItem(fd);
+    closeModal();
+    ByteBid.toast('Barang berhasil ditambahkan!', 'success');
+    loadDashboard();
+  } catch (err) {
+    errBox.textContent = err.message;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Simpan';
+  }
+});
+
+// ── Action handlers (global) ───────────────────────────────────────────────
+window.deleteItem = async (id) => {
+  if (!confirm('Yakin hapus barang ini?')) return;
+  try {
+    await ByteBid.admin.deleteItem(id);
+    ByteBid.toast('Barang dihapus', 'success');
+    loadDashboard();
+  } catch (err) { ByteBid.toast(err.message, 'error'); }
+};
+
+window.endItem = async (id) => {
+  if (!confirm('Akhiri lelang ini sekarang? Pemenang akan ditentukan.')) return;
+  try {
+    await ByteBid.admin.endItem(id);
+    ByteBid.toast('Lelang diakhiri', 'success');
+    loadDashboard();
+  } catch (err) { ByteBid.toast(err.message, 'error'); }
+};
+
+if (user?.is_admin) loadDashboard();
+</script>
+{% endblock %}

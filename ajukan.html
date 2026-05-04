@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Ajukan Penawaran - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .bid-page{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:2rem;background:radial-gradient(ellipse at center,rgba(232,23,58,0.05) 0%,transparent 60%)}
+  .bid-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;width:100%;max-width:480px}
+  .item-preview{display:flex;gap:1rem;align-items:center;background:var(--bg3);border-radius:12px;padding:1rem;margin-bottom:1.5rem}
+  .item-preview img{width:70px;height:70px;object-fit:cover;border-radius:8px;background:var(--bg2)}
+  .item-preview-name{font-weight:700;font-size:.95rem}
+  .item-preview-sub{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+  .current-price-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:.5rem}
+  .current-price{font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--red)}
+  .bid-input{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:'Outfit',sans-serif;font-size:1.1rem;color:var(--text);width:100%;outline:none;margin-bottom:1.25rem;transition:border-color .2s}
+  .bid-input:focus{border-color:var(--red)}
+  .bid-note{font-size:.78rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6}
+  .bid-title{font-weight:700;font-size:1.1rem;margin-bottom:1.25rem}
+</style>
+{% endblock %}
+{% block content %}
+<div class="bid-page">
+  <div class="bid-card">
+    <div class="bid-title">Ajukan Penawaran</div>
+    <div id="content" class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const itemId = {{ item_id }};
+
+if (!ByteBid.auth.isAuthenticated()) {
+  ByteBid.toast('Silakan login dulu untuk mengajukan penawaran', 'info');
+  setTimeout(() => window.location.href = '/login', 800);
+}
+
+async function loadItem() {
+  try {
+    const data = await ByteBid.items.get(itemId);
+    const it = data.item;
+    const minBid = it.current_bid + 100000;   // SKPL: increment min Rp 100.000
+    const suggested = it.current_bid + 500000;
+
+    document.getElementById('content').classList.remove('loading');
+    document.getElementById('content').innerHTML = `
+      <div class="item-preview">
+        <img src="${ByteBid.escapeHtml(it.image)}"
+             alt="${ByteBid.escapeHtml(it.name)}"
+             onerror="this.src='https://via.placeholder.com/70x70/0d0d12/444?text=BB'"/>
+        <div>
+          <div class="item-preview-name">${ByteBid.escapeHtml(it.name)}</div>
+          <div class="item-preview-sub">${ByteBid.escapeHtml(it.condition || '')}</div>
+          <div class="current-price-label">PENAWARAN TERTINGGI SAAT INI</div>
+          <div class="current-price">${ByteBid.formatRupiah(it.current_bid)}</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">
+            ${it.total_bids} penawar aktif · Timer: ${it.timer}
+          </div>
+        </div>
+      </div>
+
+      <div id="error-box" class="error-msg" style="display:none"></div>
+
+      <form id="bid-form">
+        <div class="form-group">
+          <label class="form-label">PENAWARAN KAMU (Rp)</label>
+          <input class="bid-input" type="number" name="amount"
+                 placeholder="${minBid}" min="${minBid}" value="${suggested}" required/>
+        </div>
+        <div class="bid-note">
+          Penawaran bersifat mengikat. Pastikan kamu siap membeli jika menang.<br>
+          Penawaran minimum: <strong style="color:var(--red)">${ByteBid.formatRupiah(minBid)}</strong>
+        </div>
+        <button type="submit" id="submit-btn" class="btn btn-red btn-block"
+                style="width:100%;padding:.85rem;border-radius:10px">
+          Konfirmasi Penawaran
+        </button>
+      </form>
+    `;
+
+    document.getElementById('bid-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseInt(e.target.amount.value);
+      const errBox = document.getElementById('error-box');
+      const btn = document.getElementById('submit-btn');
+      errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Memproses...';
+      try {
+        await ByteBid.bids.place(itemId, amount);
+        // Stash amount untuk halaman konfirmasi
+        sessionStorage.setItem('last_bid_amount', amount);
+        window.location.href = `/konfirmasi/${itemId}`;
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Konfirmasi Penawaran';
+      }
+    });
+  } catch (err) {
+    document.getElementById('content').innerHTML =
+      `<div class="error-msg">Gagal memuat item: ${err.message}</div>`;
+  }
+}
+
+if (ByteBid.auth.isAuthenticated()) loadItem();
+</script>
+{% endblock %}

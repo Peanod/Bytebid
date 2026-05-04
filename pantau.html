@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block title %}Pantau Lelang - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .monitor-page{padding:2.5rem 0}
+  .back-btn{display:inline-flex;align-items:center;gap:.5rem;color:var(--muted);text-decoration:none;font-size:.875rem;margin-bottom:1.5rem}
+  .back-btn:hover{color:var(--text)}
+  .item-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+  .item-icon{width:44px;height:44px;background:var(--red-dim);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden}
+  .item-icon img{width:100%;height:100%;object-fit:cover}
+  .item-header-name{font-weight:700}
+  .item-header-sub{font-size:.8rem;color:var(--muted)}
+
+  .timer-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;margin-bottom:1rem}
+  .timer-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--red);display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1rem}
+  .timer-label::before{content:'●';animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .timer-digits{display:flex;gap:1rem;justify-content:center;align-items:center}
+  .timer-num{font-family:'Outfit',sans-serif;font-size:2.5rem;font-weight:800;background:var(--bg3);border-radius:8px;padding:.25rem .75rem;min-width:70px;display:inline-block}
+  .timer-sep{font-size:2rem;color:var(--muted);margin-bottom:1.2rem}
+  .timer-unit-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.35rem}
+
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .info-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+  .info-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.35rem}
+  .info-val{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--red);transition:transform .3s}
+  .info-val.green{color:var(--green)}
+  .info-val.flash{transform:scale(1.1);color:var(--green)}
+  .info-sub{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+
+  .history-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+  .history-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.9rem}
+  .realtime-dot{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--green)}
+  .realtime-dot::before{content:'●';font-size:.5rem;animation:blink 1s infinite}
+  .realtime-dot.offline{color:var(--muted)}
+  .bid-row{display:flex;justify-content:space-between;align-items:center;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);transition:background .3s}
+  .bid-row.new{background:rgba(0,214,143,.1)}
+  .bid-row:last-child{border-bottom:none}
+  .bid-row-left{display:flex;align-items:center;gap:.75rem}
+  .bid-avatar{width:36px;height:36px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--text);flex-shrink:0}
+  .bid-user{font-size:.875rem;font-weight:600}
+  .bid-time-small{font-size:.75rem;color:var(--muted)}
+  .bid-amount{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700}
+  .bid-amount.top{color:var(--green)}
+
+  .action-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .ended-banner{background:rgba(0,214,143,.15);border:1px solid var(--green);border-radius:12px;padding:1.25rem;margin-bottom:1rem;text-align:center;color:var(--green)}
+</style>
+{% endblock %}
+{% block content %}
+<section class="monitor-page">
+  <div class="container" style="max-width:740px">
+    <a href="/lelang" class="back-btn">← Kembali ke daftar lelang</a>
+    <div id="content" class="loading"><div class="spinner"></div></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const itemId = {{ item_id }};
+let socket = null;
+let countdownInterval = null;
+let timeRemaining = 0;
+let currentItem = null;
+
+async function loadAndRender() {
+  try {
+    const data = await ByteBid.items.get(itemId);
+    currentItem = data.item;
+    timeRemaining = currentItem.time_remaining;
+    render(currentItem);
+    setupSocket();
+    startCountdown();
+  } catch (err) {
+    document.getElementById('content').innerHTML =
+      `<div class="error-msg">Gagal memuat: ${err.message}</div>`;
+  }
+}
+
+function render(it) {
+  const user = ByteBid.auth.currentUser();
+  const myBid = it.bids?.find(b => user && b.user_id === user.id);
+  const isWinning = myBid && it.bids[0]?.user_id === user?.id;
+  const isEnded = it.status === 'ended';
+
+  document.getElementById('content').classList.remove('loading');
+  document.getElementById('content').innerHTML = `
+    ${isEnded ? `
+      <div class="ended-banner">
+        <strong>Lelang Telah Berakhir</strong><br>
+        ${it.winner ? `Pemenang: ${ByteBid.escapeHtml(it.winner.name)}` : 'Tidak ada pemenang.'}
+      </div>` : ''}
+
+    <div class="item-header">
+      <div class="item-icon">
+        <img src="${ByteBid.escapeHtml(it.image)}"
+             onerror="this.parentElement.innerHTML='💻'"/>
+      </div>
+      <div>
+        <div class="item-header-name">${ByteBid.escapeHtml(it.name)}</div>
+        <div class="item-header-sub">ID #BB-${String(it.id).padStart(4,'0')} ·
+          <span id="total-bids-text">${it.total_bids}</span> penawar</div>
+      </div>
+    </div>
+
+    ${!isEnded ? `
+    <div class="timer-card">
+      <div class="timer-label">SISA WAKTU LELANG</div>
+      <div class="timer-digits">
+        <div><div class="timer-num" id="hours">00</div><div class="timer-unit-label">JAM</div></div>
+        <div class="timer-sep">:</div>
+        <div><div class="timer-num" id="mins">00</div><div class="timer-unit-label">MENIT</div></div>
+        <div class="timer-sep">:</div>
+        <div><div class="timer-num" id="secs">00</div><div class="timer-unit-label">DETIK</div></div>
+      </div>
+    </div>` : ''}
+
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="info-label">HARGA TERTINGGI</div>
+        <div class="info-val" id="current-bid-display">${ByteBid.formatRupiah(it.current_bid)}</div>
+        <div class="info-sub">${it.bids[0] ? 'Oleh ' + ByteBid.escapeHtml(it.bids[0].username_masked) : 'Belum ada bid'}</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">POSISI ANDA</div>
+        <div class="info-val ${isWinning ? 'green' : ''}" id="my-position">
+          ${myBid ? (isWinning ? '#1' : '#?') : '—'}
+        </div>
+        <div class="info-sub">${isWinning ? 'Tertinggi' : (myBid ? 'Dilampaui' : 'Belum bid')}</div>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <div class="history-header">
+        Riwayat penawaran
+        <div class="realtime-dot" id="realtime-status">Real-Time</div>
+      </div>
+      <div id="bid-list">
+        ${it.bids.length === 0
+          ? `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.875rem">Belum ada penawaran</div>`
+          : it.bids.map((b, idx) => bidRowHtml(b, idx === 0)).join('')}
+      </div>
+    </div>
+
+    ${!isEnded ? `
+    <div class="action-btns">
+      <a href="/ajukan/${it.id}" class="btn btn-red btn-lg">Naikkan Penawaran →</a>
+      <a href="/lelang" class="btn btn-ghost btn-lg">Pantau Saja</a>
+    </div>` : `
+    <div class="action-btns" style="grid-template-columns:1fr">
+      <a href="/lelang" class="btn btn-red btn-lg">Lihat Lelang Lain</a>
+    </div>`}
+  `;
+}
+
+function bidRowHtml(b, isTop, isNew = false) {
+  return `
+    <div class="bid-row ${isNew ? 'new' : ''}" data-bid-id="${b.id}">
+      <div class="bid-row-left">
+        <div class="bid-avatar">${ByteBid.escapeHtml(b.initial)}</div>
+        <div>
+          <div class="bid-user">${ByteBid.escapeHtml(b.username_masked)}</div>
+          <div class="bid-time-small">Diajukan pukul ${ByteBid.escapeHtml(b.time)}</div>
+        </div>
+      </div>
+      <div class="bid-amount ${isTop ? 'top' : ''}">${ByteBid.formatRupiah(b.amount)}</div>
+    </div>`;
+}
+
+// ── Real-time via Socket.IO ────────────────────────────────────────────────
+function setupSocket() {
+  socket = io(ByteBid.API_BASE);
+
+  socket.on('connect', () => {
+    socket.emit('join_item', { item_id: itemId });
+    const user = ByteBid.auth.currentUser();
+    if (user) socket.emit('join_user', { user_id: user.id });
+  });
+
+  socket.on('disconnect', () => {
+    const dot = document.getElementById('realtime-status');
+    if (dot) { dot.classList.add('offline'); dot.textContent = 'Offline'; }
+  });
+
+  // Bid baru masuk → update tampilan
+  socket.on('bid_update', (data) => {
+    if (data.item_id !== itemId) return;
+
+    // Update harga
+    const priceEl = document.getElementById('current-bid-display');
+    if (priceEl) {
+      priceEl.textContent = ByteBid.formatRupiah(data.current_bid);
+      priceEl.classList.add('flash');
+      setTimeout(() => priceEl.classList.remove('flash'), 600);
+    }
+
+    // Update total bidder count
+    const totalEl = document.getElementById('total-bids-text');
+    if (totalEl) totalEl.textContent = data.total_bids;
+
+    // Tambah row baru di paling atas
+    const list = document.getElementById('bid-list');
+    if (list && data.bid) {
+      // Hapus marker top dari row sebelumnya
+      list.querySelectorAll('.bid-amount.top').forEach(el => el.classList.remove('top'));
+      list.querySelectorAll('.bid-row.new').forEach(el => el.classList.remove('new'));
+
+      // Kalau "Belum ada penawaran" placeholder, ganti
+      if (list.querySelector('div[style*="Belum ada"]')) list.innerHTML = '';
+
+      list.insertAdjacentHTML('afterbegin', bidRowHtml(data.bid, true, true));
+    }
+
+    // Update posisi user kalau dia yang outbid
+    const user = ByteBid.auth.currentUser();
+    if (user && data.bid?.user_id !== user.id) {
+      const posEl = document.getElementById('my-position');
+      if (posEl && posEl.classList.contains('green')) {
+        posEl.classList.remove('green');
+        posEl.parentElement.querySelector('.info-sub').textContent = 'Dilampaui';
+        ByteBid.toast('Penawaranmu telah dilampaui!', 'error');
+      }
+    }
+  });
+
+  // Lelang berakhir
+  socket.on('auction_ended', (data) => {
+    if (data.item_id !== itemId) return;
+    ByteBid.toast('Lelang telah berakhir!', 'info');
+    setTimeout(() => loadAndRender(), 1000);
+  });
+
+  // Notifikasi personal
+  socket.on('notification', (data) => {
+    if (data.type === 'win') {
+      ByteBid.toast('🎉 ' + data.message, 'success');
+    } else if (data.type === 'lose') {
+      ByteBid.toast(data.message, 'info');
+    } else if (data.type === 'outbid') {
+      ByteBid.toast(data.message, 'error');
+    }
+  });
+}
+
+// ── Countdown timer ────────────────────────────────────────────────────────
+function startCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    if (timeRemaining <= 0) {
+      clearInterval(countdownInterval);
+      // Reload data — backend scheduler harusnya sudah tutup lelang
+      setTimeout(() => loadAndRender(), 1500);
+      return;
+    }
+    timeRemaining--;
+    const h = Math.floor(timeRemaining / 3600);
+    const m = Math.floor((timeRemaining % 3600) / 60);
+    const s = timeRemaining % 60;
+    const hEl = document.getElementById('hours');
+    const mEl = document.getElementById('mins');
+    const sEl = document.getElementById('secs');
+    if (hEl) hEl.textContent = String(h).padStart(2,'0');
+    if (mEl) mEl.textContent = String(m).padStart(2,'0');
+    if (sEl) sEl.textContent = String(s).padStart(2,'0');
+  }, 1000);
+}
+
+window.addEventListener('beforeunload', () => {
+  if (socket) socket.disconnect();
+  if (countdownInterval) clearInterval(countdownInterval);
+});
+
+loadAndRender();
+</script>
+{% endblock %}
