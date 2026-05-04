@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Penawaran Terkirim - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .confirm-page {
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem; background: radial-gradient(ellipse at center, rgba(0,214,143,0.06) 0%, transparent 60%);
+  }
+  .confirm-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2.5rem; width: 100%; max-width: 380px; text-align: center;
+  }
+  .check-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid var(--green); display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem; font-size: 2rem; color: var(--green);
+  }
+  .confirm-title { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: .75rem; }
+  .confirm-sub { font-size: .875rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .price-badge {
+    background: var(--bg3); border-radius: 10px; padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .price-badge-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .25rem; }
+  .price-badge-val { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--red); }
+  .confirm-actions { display: flex; flex-direction: column; gap: .75rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="confirm-page">
+  <div class="confirm-card">
+    <div class="check-circle">✓</div>
+    <div class="confirm-title">Penawaran Terkirim!</div>
+    <div class="confirm-sub">Kamu adalah penawar tertinggi saat ini. Kami akan kirim notifikasi jika ada yang melampaui penawaranmu.</div>
+    <div class="price-badge">
+      <div class="price-badge-label">PENAWARAN KAMU</div>
+      <div class="price-badge-val">Rp{{ "{:,.0f}".format(amount).replace(',', '.') }}</div>
+    </div>
+    <div class="confirm-actions">
+      <a href="{{ url_for('lelang') }}" class="btn btn-outline">Lihat Lelang Lain</a>
+      <a href="{{ url_for('pantau', item_id=item.id) }}" class="btn btn-ghost">Pantau Penawaran Ini</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Cara Kerja - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .page-hero {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 3rem 0; text-align: center;
+  }
+  .page-tag {
+    display: inline-block; background: var(--red-dim); color: var(--red);
+    border: 1px solid rgba(232,23,58,.3); padding: .3rem .9rem;
+    border-radius: 20px; font-size: .78rem; font-weight: 600; margin-bottom: 1rem;
+  }
+  .page-hero h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; }
+  .page-hero h1 span { color: var(--red); }
+  .page-hero p { color: var(--muted); margin-top: .75rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin: 3rem 0; }
+  .step-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem;
+    position: relative;
+  }
+  .step-num { font-size: .7rem; color: var(--muted); font-weight: 600; letter-spacing: .1em; margin-bottom: .75rem; }
+  .step-icon { font-size: 1.8rem; margin-bottom: .75rem; }
+  .step-title { font-weight: 700; margin-bottom: .5rem; }
+  .step-desc { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+
+  /* Timeline */
+  .timeline-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.75rem; margin-bottom: 3rem;
+  }
+  .timeline-title { font-weight: 700; margin-bottom: 1.5rem; }
+  .timeline-track { display: flex; align-items: center; gap: 0; }
+  .tl-node { text-align: center; flex: 1; }
+  .tl-dot {
+    width: 36px; height: 36px; border-radius: 50%; margin: 0 auto .5rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700;
+  }
+  .tl-dot.done { background: var(--green); color: #000; }
+  .tl-dot.current { background: var(--cyan); color: #000; }
+  .tl-dot.future { background: var(--card2); color: var(--muted); border: 1px solid var(--border); }
+  .tl-label { font-size: .72rem; color: var(--muted); }
+  .tl-line { flex: 1; height: 1px; background: var(--border); max-width: 40px; }
+
+  /* FAQ */
+  .faq-section h2 { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 1.25rem; }
+  .faq-section h2 span { color: var(--red); }
+  .faq-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: .75rem; overflow: hidden;
+  }
+  .faq-q {
+    padding: 1rem 1.25rem; cursor: pointer; display: flex;
+    justify-content: space-between; align-items: center;
+    font-size: .9rem; font-weight: 500; user-select: none;
+  }
+  .faq-toggle {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; color: var(--red); flex-shrink: 0; transition: transform .3s;
+  }
+  .faq-a {
+    max-height: 0; overflow: hidden; transition: max-height .3s ease;
+    font-size: .875rem; color: var(--muted); line-height: 1.7;
+    padding: 0 1.25rem;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-bottom: 1rem; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+  /* CTA */
+  .cta-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2.5rem; text-align: center; margin-top: 3rem;
+  }
+  .cta-box h3 { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: .5rem; }
+  .cta-box p { color: var(--muted); margin-bottom: 1.5rem; font-size: .9rem; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+  @media(max-width: 640px) {
+    .steps { grid-template-columns: 1fr; }
+    .cta-btns { flex-direction: column; align-items: center; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="page-tag">Panduan Pengguna</div>
+    <h1>Cara Kerja <span>Byte</span>Bid</h1>
+    <p>Ikuti tiga langkah sederhana untuk mulai menawar dan memenangkan barang impianmu.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01 / DAFTAR</div>
+        <div class="step-icon">👤</div>
+        <div class="step-title">Buat Akun</div>
+        <div class="step-desc">Daftar gratis dalam 30 detik. Verifikasi email dan kamu siap untuk mulai mengikuti lelang.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02 / PILIH</div>
+        <div class="step-icon">🎯</div>
+        <div class="step-title">Pilih Barang</div>
+        <div class="step-desc">Jelajahi ratusan barang yang dilelang. Filter berdasarkan kategori, harga, atau waktu berakhir.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03 / MENANG</div>
+        <div class="step-icon">⭐</div>
+        <div class="step-title">Ajukan & Menang</div>
+        <div class="step-desc">Ajukan penawaranmu. Jika penawaranmu tertinggi saat timer habis, kamu menang dan barang dikirim.</div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-card">
+      <div class="timeline-title">Timeline Lelang</div>
+      <div class="timeline-track">
+        <div class="tl-node">
+          <div class="tl-dot done">T-0</div>
+          <div class="tl-label">Lelang dibuka</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-node">
+          <div class="tl-dot done">T+1</div>
+          <div class="tl-label">Penawaran masuk</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-node">
+          <div class="tl-dot current">T+6</div>
+          <div class="tl-label">Harga Naik</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-node">
+          <div class="tl-dot future">T-5m</div>
+          <div class="tl-label">Notifikasi Dikirim</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-node">
+          <div class="tl-dot future">END</div>
+          <div class="tl-label">Pemenang ditentukan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <h2>Pertanyaan <span>Umum</span></h2>
+      {% for faq in faqs %}
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          {{ faq.q }}
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">{{ faq.a }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+      <h3>Siap mulai lelang?</h3>
+      <p>Bergabung sekarang dan temukan barang terbaik dengan harga terbaik.</p>
+      <div class="cta-btns">
+        <a href="{{ url_for('register') }}" class="btn btn-red btn-lg">Daftar Sekarang</a>
+        <a href="{{ url_for('tentang') }}" class="btn btn-outline btn-lg">Pelajari Tentang kami</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+</script>
+{% endblock %}

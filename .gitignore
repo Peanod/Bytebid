@@ -27,6 +27,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# Flask instance folder
+instance/
+
 # Migrations (optional — remove if you want to track migrations)
 migrations/
 
