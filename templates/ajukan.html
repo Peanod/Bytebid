@@ -48,7 +48,7 @@
         <div class="item-preview-sub">{{ item.condition }}</div>
         <div class="current-price-label">PENAWARAN TERTINGGI SAAT INI</div>
         <div class="current-price">{{ item.current_bid | rupiah }}</div>
-        <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">{{ item.bids|length }} penawar aktif · Timer: {{ item.timer }}</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">{{ item.unique_bidders }} penawar aktif · Timer: {{ item.timer_display }}</div>
       </div>
     </div>
 

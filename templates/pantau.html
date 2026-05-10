@@ -3,192 +3,182 @@
 {% block head %}
 <style>
   .monitor-page { padding: 2.5rem 0; }
-  .back-btn {
-    display: inline-flex; align-items: center; gap: .5rem;
-    color: var(--muted); text-decoration: none; font-size: .875rem; margin-bottom: 1.5rem;
-  }
+  .back-btn { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); text-decoration: none; font-size: .875rem; margin-bottom: 1.5rem; }
   .back-btn:hover { color: var(--text); }
-
-  .item-header {
-    display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
-  }
-  .item-icon {
-    width: 44px; height: 44px; background: var(--red-dim); border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-  }
+  .item-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+  .item-icon { width: 60px; height: 60px; background: var(--bg3); border-radius: 10px; overflow: hidden; }
+  .item-icon img { width: 100%; height: 100%; object-fit: cover; }
   .item-header-name { font-weight: 700; }
   .item-header-sub { font-size: .8rem; color: var(--muted); }
-
-  .timer-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 1.5rem; text-align: center; margin-bottom: 1rem;
-  }
-  .timer-label {
-    font-size: .7rem; text-transform: uppercase; letter-spacing: .1em;
-    color: var(--red); display: flex; align-items: center; justify-content: center;
-    gap: .5rem; margin-bottom: 1rem;
-  }
+  .timer-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+  .timer-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--red); display: flex; align-items: center; justify-content: center; gap: .5rem; margin-bottom: 1rem; }
   .timer-label::before { content: '●'; animation: blink 1s infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   .timer-digits { display: flex; gap: 1rem; justify-content: center; align-items: center; }
   .timer-unit { text-align: center; }
-  .timer-num {
-    font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800;
-    background: var(--bg3); border-radius: 8px; padding: .25rem .75rem;
-    min-width: 70px; display: inline-block;
-  }
+  .timer-num { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; background: var(--bg3); border-radius: 8px; padding: .25rem .75rem; min-width: 70px; display: inline-block; }
   .timer-sep { font-size: 2rem; color: var(--muted); margin-bottom: 1.2rem; }
   .timer-unit-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: .35rem; }
-
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-  .info-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;
-  }
+  .info-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
   .info-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .35rem; }
   .info-val { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--red); }
   .info-val.green { color: var(--green); }
   .info-sub { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
-
-  .my-bid-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 1.25rem; margin-bottom: 1rem;
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .my-bid-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
   .my-bid-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .25rem; }
   .my-bid-val { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; }
   .my-bid-time { font-size: .78rem; color: var(--muted); }
   .tag-top { background: var(--green); color: #000; padding: .3rem .75rem; border-radius: 20px; font-size: .75rem; font-weight: 700; }
-
   .history-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
-  .history-header {
-    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    font-weight: 700; font-size: .9rem;
-  }
+  .history-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: .9rem; }
   .realtime-dot { display: flex; align-items: center; gap: .4rem; font-size: .75rem; color: var(--green); }
   .realtime-dot::before { content: '●'; font-size: .5rem; animation: blink 1s infinite; }
-  .bid-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: .85rem 1.25rem; border-bottom: 1px solid var(--border);
-  }
+  .bid-row { display: flex; justify-content: space-between; align-items: center; padding: .85rem 1.25rem; border-bottom: 1px solid var(--border); }
   .bid-row:last-child { border-bottom: none; }
   .bid-row-left { display: flex; align-items: center; gap: .75rem; }
-  .bid-avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--card2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .8rem; font-weight: 700; color: var(--text); flex-shrink: 0;
-  }
+  .bid-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--card2); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: var(--text); flex-shrink: 0; }
   .bid-user { font-size: .875rem; font-weight: 600; }
   .bid-time-small { font-size: .75rem; color: var(--muted); }
   .bid-amount { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; }
   .bid-amount.top { color: var(--green); }
-
   .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 </style>
 {% endblock %}
 {% block content %}
 <section class="monitor-page">
   <div class="container" style="max-width:740px">
-    <a href="{{ url_for('lelang') }}" class="back-btn">← Kembali ke daftar lelang</a>
+    <a href="{{ url_for('main.lelang') }}" class="back-btn">← Kembali ke daftar lelang</a>
 
     <div class="item-header">
-      <div class="item-icon">💻</div>
+      <div class="item-icon"><img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.style.display='none'"/></div>
       <div>
         <div class="item-header-name">{{ item.name }}</div>
-        <div class="item-header-sub">ID #BB-2041 · {{ item.bids|length }} penawar</div>
+        <div class="item-header-sub">ID #BB-{{ '%04d' % item.id }} · <span id="bidder-count">{{ item.unique_bidders }}</span> penawar</div>
       </div>
     </div>
 
-    <!-- Timer -->
     <div class="timer-card">
       <div class="timer-label">SISA WAKTU LELANG</div>
       <div class="timer-digits">
-        <div class="timer-unit">
-          <div class="timer-num" id="hours">00</div>
-          <div class="timer-unit-label">JAM</div>
-        </div>
+        <div class="timer-unit"><div class="timer-num" id="hours">00</div><div class="timer-unit-label">JAM</div></div>
         <div class="timer-sep">:</div>
-        <div class="timer-unit">
-          <div class="timer-num" id="mins">08</div>
-          <div class="timer-unit-label">MENIT</div>
-        </div>
+        <div class="timer-unit"><div class="timer-num" id="mins">00</div><div class="timer-unit-label">MENIT</div></div>
         <div class="timer-sep">:</div>
-        <div class="timer-unit">
-          <div class="timer-num" id="secs">08</div>
-          <div class="timer-unit-label">DETIK</div>
-        </div>
+        <div class="timer-unit"><div class="timer-num" id="secs">00</div><div class="timer-unit-label">DETIK</div></div>
       </div>
     </div>
 
-    <!-- Info grid -->
     <div class="info-grid">
       <div class="info-box">
         <div class="info-label">HARGA TERTINGGI</div>
-        <div class="info-val">{{ item.current_bid | rupiah }}</div>
-        <div class="info-sub">Oleh Anda</div>
+        <div class="info-val" id="current-bid">{{ item.current_bid | rupiah }}</div>
+        <div class="info-sub" id="top-bidder-name">{{ bids[0].user.name if bids else 'Belum ada penawaran' }}</div>
       </div>
       <div class="info-box">
         <div class="info-label">POSISI ANDA</div>
-        <div class="info-val green">#1/{{ item.bids|length }}</div>
-        <div class="info-sub">Tertinggi</div>
+        <div class="info-val green">
+          {% if my_top %}{% for b in bids %}{% if b.id == my_top.id %}#{{ loop.index }}/{{ bids|length }}{% endif %}{% endfor %}{% else %}—{% endif %}
+        </div>
+        <div class="info-sub">{% if my_top %}{{ 'Tertinggi' if my_top.is_winning else 'Belum tertinggi' }}{% else %}Anda belum bid{% endif %}</div>
       </div>
     </div>
 
-    <!-- My bid -->
-    {% if item.bids %}
+    {% if my_top %}
     <div class="my-bid-box">
       <div>
         <div class="my-bid-label">PENAWARAN ANDA</div>
-        <div class="my-bid-val">{{ item.bids[0].amount | rupiah }}</div>
-        <div class="my-bid-time">Diajukan pukul {{ item.bids[0].time }}</div>
+        <div class="my-bid-val">{{ my_top.amount | rupiah }}</div>
+        <div class="my-bid-time">Diajukan pukul {{ my_top.created_at.strftime('%d %b %Y %H:%M:%S') }}</div>
       </div>
-      <div class="tag-top">Tertinggi</div>
+      {% if my_top.is_winning %}<div class="tag-top">Tertinggi</div>{% endif %}
     </div>
     {% endif %}
 
-    <!-- Bid history -->
     <div class="history-card">
       <div class="history-header">
         Riwayat penawaran
         <div class="realtime-dot">Real-Time</div>
       </div>
-      {% for bid in item.bids %}
-      <div class="bid-row">
-        <div class="bid-row-left">
-          <div class="bid-avatar">{{ bid.initial }}</div>
-          <div>
-            <div class="bid-user">{{ bid.user }}</div>
-            <div class="bid-time-small">Diajukan pukul {{ bid.time }}</div>
+      <div id="bid-list">
+      {% for bid in bids %}
+        <div class="bid-row" data-bid-id="{{ bid.id }}">
+          <div class="bid-row-left">
+            <div class="bid-avatar">{{ bid.user.name[:2]|upper if bid.user else '??' }}</div>
+            <div>
+              <div class="bid-user">{{ bid.user.name if bid.user else 'Anonim' }}</div>
+              <div class="bid-time-small">{{ bid.created_at.strftime('%d %b %Y %H:%M:%S') }}</div>
+            </div>
           </div>
+          <div class="bid-amount {% if loop.first %}top{% endif %}">{{ bid.amount | rupiah }}</div>
         </div>
-        <div class="bid-amount {% if loop.first %}top{% endif %}">{{ bid.amount | rupiah }}</div>
-      </div>
       {% endfor %}
-      {% if not item.bids %}
+      </div>
+      {% if not bids %}
       <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.875rem">Belum ada penawaran</div>
       {% endif %}
     </div>
 
     <div class="action-btns">
-      <a href="{{ url_for('ajukan', item_id=item.id) }}" class="btn btn-red btn-lg">Naikkan Penawaran →</a>
-      <a href="{{ url_for('lelang') }}" class="btn btn-ghost btn-lg">Pantau Saja</a>
+      <a href="{{ url_for('main.ajukan', item_id=item.id) }}" class="btn btn-red btn-lg">Naikkan Penawaran →</a>
+      <a href="{{ url_for('main.lelang') }}" class="btn btn-ghost btn-lg">Pantau Saja</a>
     </div>
   </div>
 </section>
+{% endblock %}
 
+{% block scripts %}
 <script>
-// Countdown timer simulation
-let total = 8 * 60 + 8; // seconds
-function tick() {
-  if (total <= 0) return;
-  total--;
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  document.getElementById('hours').textContent = String(h).padStart(2,'0');
-  document.getElementById('mins').textContent = String(m).padStart(2,'0');
-  document.getElementById('secs').textContent = String(s).padStart(2,'0');
-}
-setInterval(tick, 1000);
+(function(){
+  const itemId = {{ item.id }};
+  let totalSecs = {{ item.time_remaining_seconds }};
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function paintTimer() {
+    if (totalSecs < 0) totalSecs = 0;
+    const h = Math.floor(totalSecs/3600);
+    const m = Math.floor((totalSecs%3600)/60);
+    const s = totalSecs%60;
+    document.getElementById('hours').textContent = pad(h);
+    document.getElementById('mins').textContent = pad(m);
+    document.getElementById('secs').textContent = pad(s);
+  }
+  paintTimer();
+  setInterval(() => { if (totalSecs > 0) { totalSecs--; paintTimer(); } }, 1000);
+
+  function rupiah(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID').replace(/,/g,'.'); }
+
+  if (window.bbSocket) {
+    window.bbSocket.emit('join_item', { item_id: itemId });
+    window.bbSocket.on('connect', () => window.bbSocket.emit('join_item', { item_id: itemId }));
+
+    window.bbSocket.on('bid_update', (data) => {
+      if (data.item_id !== itemId) return;
+      document.getElementById('current-bid').textContent = rupiah(data.current_bid);
+      if (data.bid && data.bid.user) {
+        document.getElementById('top-bidder-name').textContent = data.bid.user.name;
+      }
+      const list = document.getElementById('bid-list');
+      const row = document.createElement('div');
+      row.className = 'bid-row';
+      row.dataset.bidId = data.bid.id;
+      const initial = (data.bid.user.name || '??').slice(0,2).toUpperCase();
+      const time = new Date(data.bid.created_at).toLocaleString('id-ID');
+      row.innerHTML = '<div class="bid-row-left">' +
+        '<div class="bid-avatar">' + initial + '</div>' +
+        '<div><div class="bid-user">' + data.bid.user.name + '</div>' +
+        '<div class="bid-time-small">' + time + '</div></div></div>' +
+        '<div class="bid-amount top">' + rupiah(data.bid.amount) + '</div>';
+      const oldTop = list.querySelector('.bid-amount.top');
+      if (oldTop) oldTop.classList.remove('top');
+      list.prepend(row);
+    });
+
+    window.bbSocket.on('auction_ended', (data) => {
+      if (data.item_id !== itemId) return;
+      setTimeout(() => location.reload(), 1500);
+    });
+  }
+})();
 </script>
 {% endblock %}

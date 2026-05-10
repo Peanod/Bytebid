@@ -145,24 +145,41 @@
 
 <nav>
   <div class="nav-inner">
-    <a href="{{ url_for('index') }}" class="logo">Byte<span>Bid</span></a>
+    <a href="{{ url_for('main.index') }}" class="logo">Byte<span>Bid</span></a>
     <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Beranda</a></li>
-      <li><a href="{{ url_for('lelang') }}" class="{% if request.endpoint == 'lelang' %}active{% endif %}">Lelang</a></li>
-      <li><a href="{{ url_for('cara_kerja') }}" class="{% if request.endpoint == 'cara_kerja' %}active{% endif %}">Cara Kerja</a></li>
-      <li><a href="{{ url_for('tentang') }}" class="{% if request.endpoint == 'tentang' %}active{% endif %}">Tentang</a></li>
+      <li><a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}active{% endif %}">Beranda</a></li>
+      <li><a href="{{ url_for('main.lelang') }}" class="{% if request.endpoint == 'main.lelang' %}active{% endif %}">Lelang</a></li>
+      <li><a href="{{ url_for('main.cara_kerja') }}" class="{% if request.endpoint == 'main.cara_kerja' %}active{% endif %}">Cara Kerja</a></li>
+      <li><a href="{{ url_for('main.tentang') }}" class="{% if request.endpoint == 'main.tentang' %}active{% endif %}">Tentang</a></li>
     </ul>
     <div class="nav-btns">
       {% if session.user_id %}
+        <a href="{{ url_for('main.notifications') }}" class="btn btn-ghost" title="Notifikasi">🔔</a>
         <span style="color:var(--muted);font-size:.875rem;align-self:center">{{ session.user_name }}</span>
-        <a href="{{ url_for('logout') }}" class="btn btn-ghost">Keluar</a>
+        {% if session.is_admin %}<a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-ghost">Admin</a>{% endif %}
+        <a href="{{ url_for('main.logout') }}" class="btn btn-ghost">Keluar</a>
       {% else %}
-        <a href="{{ url_for('login') }}" class="btn btn-ghost">Masuk</a>
-        <a href="{{ url_for('register') }}" class="btn btn-red">Daftar</a>
+        <a href="{{ url_for('main.login') }}" class="btn btn-ghost">Masuk</a>
+        <a href="{{ url_for('main.register') }}" class="btn btn-red">Daftar</a>
       {% endif %}
     </div>
   </div>
 </nav>
+
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+  <div style="max-width:1200px;margin:1rem auto 0;padding:0 2rem">
+    {% for cat, msg in msgs %}
+    <div style="background:{% if cat=='error' %}var(--red-dim){% elif cat=='success' %}rgba(0,214,143,.12){% else %}var(--bg3){% endif %};
+                border:1px solid {% if cat=='error' %}var(--red){% elif cat=='success' %}var(--green){% else %}var(--border){% endif %};
+                color:{% if cat=='error' %}var(--red){% elif cat=='success' %}var(--green){% else %}var(--text){% endif %};
+                padding:.75rem 1rem;border-radius:8px;font-size:.875rem;margin-bottom:.5rem">
+      {{ msg }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
 
 {% block content %}{% endblock %}
 
@@ -171,5 +188,29 @@
     © 2026 ByteBid · Teknik Komputer Universitas Diponegoro · Kelompok 08
   </div>
 </footer>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  // Socket.IO global instance
+  window.bbSocket = (function () {
+    try {
+      const s = io({ transports: ['websocket', 'polling'] });
+      {% if session.user_id %}
+      s.on('connect', () => s.emit('join_user', { user_id: {{ session.user_id }} }));
+      s.on('notification', (n) => {
+        try {
+          const el = document.createElement('div');
+          el.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;background:#1e1e2a;border-left:4px solid #00bcd4;color:#f0f0f8;padding:14px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.4);font-size:.9rem;max-width:340px;';
+          el.innerHTML = '<strong>' + (n.title || 'Notifikasi') + '</strong><br>' + (n.message || '');
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        } catch (e) {}
+      });
+      {% endif %}
+      return s;
+    } catch (e) { console.warn('Socket.IO unavailable', e); return null; }
+  })();
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

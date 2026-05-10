@@ -150,9 +150,16 @@
     </div>
 
     <!-- FAQ -->
+    {% set _faqs = faqs or [
+      {'q':'Bagaimana cara mengikuti lelang?','a':'Daftar akun, pilih barang yang ingin kamu lelang, lalu klik "Ajukan Penawaran" dan masukkan nominal. Penawaran harus lebih tinggi dari harga tertinggi saat ini.'},
+      {'q':'Apakah ada biaya pendaftaran?','a':'Tidak. Pendaftaran dan penggunaan platform ByteBid sepenuhnya gratis.'},
+      {'q':'Bagaimana sistem menentukan pemenang?','a':'Sistem secara otomatis menentukan pemenang berdasarkan harga tertinggi saat timer lelang menyentuh angka nol.'},
+      {'q':'Apakah saya akan dapat notifikasi hasil lelang?','a':'Ya. Sistem mengirimkan notifikasi otomatis baik untuk pemenang maupun peserta yang kalah.'},
+      {'q':'Apa yang terjadi jika ada yang melampaui penawaran saya?','a':'Kamu akan mendapatkan notifikasi outbid secara real-time dan bisa langsung menaikkan penawaran.'}
+    ] %}
     <div class="faq-section">
       <h2>Pertanyaan <span>Umum</span></h2>
-      {% for faq in faqs %}
+      {% for faq in _faqs %}
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">
           {{ faq.q }}
@@ -168,8 +175,8 @@
       <h3>Siap mulai lelang?</h3>
       <p>Bergabung sekarang dan temukan barang terbaik dengan harga terbaik.</p>
       <div class="cta-btns">
-        <a href="{{ url_for('register') }}" class="btn btn-red btn-lg">Daftar Sekarang</a>
-        <a href="{{ url_for('tentang') }}" class="btn btn-outline btn-lg">Pelajari Tentang kami</a>
+        <a href="{{ url_for('main.register') }}" class="btn btn-red btn-lg">Daftar Sekarang</a>
+        <a href="{{ url_for('main.tentang') }}" class="btn btn-outline btn-lg">Pelajari Tentang kami</a>
       </div>
     </div>
   </div>

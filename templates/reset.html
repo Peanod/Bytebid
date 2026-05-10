@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Reset Password - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .auth-page{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:2rem}
+  .auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:440px}
+  .auth-logo{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:1rem}
+  .auth-logo span{color:var(--red)}
+  .auth-title{font-size:1.3rem;font-weight:700;margin-bottom:1.5rem;text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">Byte<span>Bid</span></div>
+    <div class="auth-title">Reset Password</div>
+    {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Password Baru</label>
+        <input class="form-input" type="password" name="password" placeholder="Min. 8 karakter" minlength="8" required/>
+      </div>
+      <button type="submit" class="btn btn-red btn-block" style="width:100%;padding:.85rem;border-radius:10px">Simpan Password Baru</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

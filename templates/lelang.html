@@ -67,10 +67,10 @@
           <div class="card-sub">{{ item.condition }}</div>
           <div class="bid-label">PENAWARAN SAAT INI</div>
           <div class="bid-price">{{ item.current_bid | rupiah }}</div>
-          <div class="timer">{{ item.timer }}</div>
+          <div class="timer">{{ item.timer_display }}</div>
         </div>
         <div class="card-footer">
-          <a href="{{ url_for('ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
+          <a href="{{ url_for('main.ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
         </div>
       </div>
       {% endfor %}

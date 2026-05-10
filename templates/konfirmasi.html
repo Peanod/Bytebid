@@ -35,11 +35,11 @@
     <div class="confirm-sub">Kamu adalah penawar tertinggi saat ini. Kami akan kirim notifikasi jika ada yang melampaui penawaranmu.</div>
     <div class="price-badge">
       <div class="price-badge-label">PENAWARAN KAMU</div>
-      <div class="price-badge-val">Rp{{ "{:,.0f}".format(amount).replace(',', '.') }}</div>
+      <div class="price-badge-val">{{ bid_amount | rupiah }}</div>
     </div>
     <div class="confirm-actions">
-      <a href="{{ url_for('lelang') }}" class="btn btn-outline">Lihat Lelang Lain</a>
-      <a href="{{ url_for('pantau', item_id=item.id) }}" class="btn btn-ghost">Pantau Penawaran Ini</a>
+      <a href="{{ url_for('main.lelang') }}" class="btn btn-outline">Lihat Lelang Lain</a>
+      <a href="{{ url_for('main.pantau', item_id=item.id) }}" class="btn btn-ghost">Pantau Penawaran Ini</a>
     </div>
   </div>
 </div>

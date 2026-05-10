@@ -75,8 +75,8 @@
       <h1>Menang dengan Penawaran <span class="accent">Terbaik</span></h1>
       <p class="hero-desc">Platform lelang online yang transparan dan real-time. Temukan barang terbaik, ajukan penawaran, dan menangkan lelang.</p>
       <div class="hero-actions">
-        <a href="{{ url_for('lelang') }}" class="btn btn-red btn-lg">Lihat Lelang</a>
-        <a href="{{ url_for('cara_kerja') }}" class="btn btn-outline btn-lg">Cara Kerja</a>
+        <a href="{{ url_for('main.lelang') }}" class="btn btn-red btn-lg">Lihat Lelang</a>
+        <a href="{{ url_for('main.cara_kerja') }}" class="btn btn-outline btn-lg">Cara Kerja</a>
       </div>
     </div>
 
@@ -91,8 +91,8 @@
         <div class="fc-sub">{{ feat.condition }}</div>
         <div class="bid-label">PENAWARAN SAAT INI</div>
         <div class="fc-price">{{ feat.current_bid | rupiah }}</div>
-        <div class="timer">Berakhir dalam {{ feat.timer }}</div>
-        <a href="{{ url_for('ajukan', item_id=feat.id) }}" class="btn btn-red btn-block mt-2" style="margin-top:.75rem">
+        <div class="timer">Berakhir dalam {{ feat.timer_display }}</div>
+        <a href="{{ url_for('main.ajukan', item_id=feat.id) }}" class="btn btn-red btn-block mt-2" style="margin-top:.75rem">
           Ajukan Penawaran →
         </a>
       </div>
@@ -123,7 +123,7 @@
   <div class="container">
     <div class="section-header flex justify-between items-center">
       <h2>Lelang <span>Aktif</span></h2>
-      <a href="{{ url_for('lelang') }}" class="btn btn-ghost">Lihat Semua →</a>
+      <a href="{{ url_for('main.lelang') }}" class="btn btn-ghost">Lihat Semua →</a>
     </div>
     <div class="grid-3">
       {% for item in items %}
@@ -139,10 +139,10 @@
           <div class="card-sub">{{ item.condition }}</div>
           <div class="bid-label">PENAWARAN SAAT INI</div>
           <div class="bid-price">{{ item.current_bid | rupiah }}</div>
-          <div class="timer">{{ item.timer }}</div>
+          <div class="timer">{{ item.timer_display }}</div>
         </div>
         <div class="card-footer">
-          <a href="{{ url_for('ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
+          <a href="{{ url_for('main.ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
         </div>
       </div>
       {% endfor %}

@@ -116,8 +116,14 @@
     <div class="team-section">
       <div class="team-section h2">TIM KAMI</div>
       <div class="team-section h3">Teknik Komputer - Universitas Diponegoro</div>
+      {% set _team = team or [
+        {'name':'Anindya Fairuz Az Zahra','role':'Project Manager','nim':'21120124120018','initial':'AF','color':'#e8173a'},
+        {'name':'Lionel Jeremi P. Siahaan','role':'Programmer','nim':'21120124130067','initial':'LJ','color':'#00bcd4'},
+        {'name':'Gotara Parasdya Abimanyu','role':'Programmer','nim':'21120124140157','initial':'GP','color':'#00d68f'},
+        {'name':'Finodi','role':'UI/UX Designer','nim':'21120124140138','initial':'FN','color':'#a855f7'}
+      ] %}
       <div class="team-grid">
-        {% for member in team %}
+        {% for member in _team %}
         <div class="team-card">
           <div class="team-avatar" style="background:{{ member.color }}">{{ member.initial }}</div>
           <div class="team-name">{{ member.name }}</div>
@@ -133,7 +139,7 @@
       <h3>Tertarik ikut berkontribusi?</h3>
       <p>ByteBid terus berkembang. Jadilah bagian dari komunitas lelang digital Indonesia.</p>
       <div class="cta-btns">
-        <a href="{{ url_for('lelang') }}" class="btn btn-red btn-lg">Mulai Lelang</a>
+        <a href="{{ url_for('main.lelang') }}" class="btn btn-red btn-lg">Mulai Lelang</a>
         <a href="#" class="btn btn-outline btn-lg">Hubungi Kami</a>
       </div>
     </div>
