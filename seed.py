@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from app import create_app, db
-from app.models import User, Item, AuctionStatus
+from app.models import User, Item, AuctionStatus, Bid, Notification, NotificationType
 
 
 def seed():
