@@ -6,23 +6,56 @@
   .admin-page h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; margin-bottom: .25rem; }
   .admin-page h1 span { color: var(--red); }
   .admin-page p.lead { color: var(--muted); margin-bottom: 2rem; font-size: .9rem; }
-  .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
-  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-  .stat-box .lbl { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .25rem; }
-  .stat-box .val { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--red); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: .85rem; margin-bottom: 2rem; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
+  .stat-box .lbl { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .25rem; }
+  .stat-box .val { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--red); }
+  .stat-box.green .val { color: var(--green); }
+  .stat-box.cyan  .val { color: var(--cyan); }
+  .stat-box.muted .val { color: var(--muted); }
+
+  .tabs { display: flex; gap: .5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .tab { padding: .75rem 1.25rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent;
+         font-weight: 600; font-size: .9rem; text-decoration: none; }
+  .tab.active { color: var(--white); border-bottom-color: var(--red); }
+  .tab .count { display: inline-block; background: var(--bg3); color: var(--muted);
+                padding: .1rem .55rem; border-radius: 10px; font-size: .7rem; margin-left: .35rem; }
+  .tab.active .count { background: var(--red-dim); color: var(--red); }
+
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-  .panel h3 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 800; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .panel h3 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-row-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; }
+
   table.items { width: 100%; border-collapse: collapse; }
-  table.items th, table.items td { padding: .75rem .5rem; text-align: left; border-bottom: 1px solid var(--border); font-size: .85rem; }
-  table.items th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: .72rem; letter-spacing: .08em; }
-  .pill { display: inline-block; padding: .15rem .6rem; border-radius: 12px; font-size: .72rem; font-weight: 600; }
-  .pill.active { background: rgba(0,214,143,.15); color: var(--green); }
+  table.items th, table.items td { padding: .75rem .5rem; text-align: left; border-bottom: 1px solid var(--border); font-size: .85rem; vertical-align: middle; }
+  table.items th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: .7rem; letter-spacing: .08em; }
+  table.items tbody tr:hover { background: rgba(255,255,255,.02); }
+  .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--bg3); }
+  .pill { display: inline-block; padding: .15rem .55rem; border-radius: 10px; font-size: .7rem; font-weight: 600; text-transform: capitalize; }
+  .pill.active { background: rgba(0,214,143,.18); color: var(--green); }
   .pill.ended  { background: var(--bg3); color: var(--muted); }
   .pill.cancelled { background: var(--red-dim); color: var(--red); }
+  .pill.scheduled { background: rgba(0,188,212,.15); color: var(--cyan); }
+
+  .row-actions { display: flex; gap: .35rem; flex-wrap: wrap; justify-content: flex-end; }
   .row-actions form { display: inline-block; margin: 0; }
-  .btn-mini { padding: .35rem .75rem; font-size: .75rem; border-radius: 6px; }
-  @media(max-width:768px){ .stat-grid{grid-template-columns:repeat(2,1fr)} .form-row{grid-template-columns:1fr} }
+  .btn-mini { padding: .35rem .65rem; font-size: .75rem; border-radius: 6px; border: none; cursor: pointer; font-family: inherit; font-weight: 600; }
+  .btn-edit { background: var(--cyan); color: #000; }
+  .btn-view { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-cancel { background: transparent; color: var(--red); border: 1px solid var(--red); }
+  .btn-trash { background: var(--red-dim); color: var(--red); }
+  .btn-restore { background: rgba(0,214,143,.18); color: var(--green); }
+  .btn-hard-delete { background: var(--red); color: #fff; }
+  .btn-mini:hover { opacity: .85; }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: .75rem; }
+
+  @media(max-width:1024px){ .stat-grid{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:768px) { .stat-grid{grid-template-columns:repeat(2,1fr)} .form-row,.form-row-3{grid-template-columns:1fr} }
 </style>
 {% endblock %}
 {% block content %}
@@ -33,20 +66,40 @@
 
     <div class="stat-grid">
       <div class="stat-box"><div class="lbl">Total Barang</div><div class="val">{{ stats.total_items }}</div></div>
-      <div class="stat-box"><div class="lbl">Lelang Aktif</div><div class="val" style="color:var(--green)">{{ stats.active_items }}</div></div>
-      <div class="stat-box"><div class="lbl">Lelang Selesai</div><div class="val" style="color:var(--cyan)">{{ stats.ended_items }}</div></div>
+      <div class="stat-box green"><div class="lbl">Lelang Aktif</div><div class="val">{{ stats.active_items }}</div></div>
+      <div class="stat-box cyan"><div class="lbl">Lelang Selesai</div><div class="val">{{ stats.ended_items }}</div></div>
+      <div class="stat-box muted"><div class="lbl">Di Trash</div><div class="val">{{ stats.trashed_items }}</div></div>
       <div class="stat-box"><div class="lbl">Total Pengguna</div><div class="val">{{ stats.total_users }}</div></div>
       <div class="stat-box"><div class="lbl">Total Bid</div><div class="val">{{ stats.total_bids }}</div></div>
     </div>
 
+    <!-- Tabs -->
+    <div class="tabs">
+      <a href="{{ url_for('main.admin_dashboard', tab='items') }}"
+         class="tab {% if active_tab != 'trash' %}active{% endif %}">
+        Daftar Barang <span class="count">{{ items|length }}</span>
+      </a>
+      <a href="{{ url_for('main.admin_dashboard', tab='create') }}"
+         class="tab {% if active_tab == 'create' %}active{% endif %}">
+        + Tambah Barang
+      </a>
+      <a href="{{ url_for('main.admin_dashboard', tab='trash') }}"
+         class="tab {% if active_tab == 'trash' %}active{% endif %}">
+        🗑 Trash <span class="count">{{ trashed|length }}</span>
+      </a>
+    </div>
+
+    {# ── TAB: CREATE ───────────────────────────────────────────────────── #}
+    {% if active_tab == 'create' %}
     <div class="panel">
-      <h3>Tambah Barang Lelang</h3>
+      <div class="panel-head"><h3>Tambah Barang Lelang Baru</h3></div>
       <form method="POST">
         <input type="hidden" name="action" value="create_item"/>
+        <input type="hidden" name="tab" value="items"/>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Nama Barang</label>
-            <input class="form-input" name="name" required/>
+            <input class="form-input" name="name" required placeholder="Misal: iPhone 15 Pro Max"/>
           </div>
           <div class="form-group">
             <label class="form-label">Kategori</label>
@@ -70,7 +123,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Kondisi</label>
-          <input class="form-input" name="condition" placeholder="Misal: Kondisi 95% - Box lengkap"/>
+          <input class="form-input" name="condition" placeholder="Kondisi 95% - Box lengkap"/>
         </div>
         <div class="form-group">
           <label class="form-label">URL Gambar</label>
@@ -84,41 +137,112 @@
       </form>
     </div>
 
+    {# ── TAB: TRASH ────────────────────────────────────────────────────── #}
+    {% elif active_tab == 'trash' %}
     <div class="panel">
-      <h3>Daftar Barang ({{ items|length }})</h3>
+      <div class="panel-head">
+        <h3>🗑 Trash · {{ trashed|length }} barang</h3>
+        {% if trashed %}
+        <form method="POST" onsubmit="return confirm('Yakin kosongkan trash? Semua {{ trashed|length }} barang akan dihapus PERMANEN dan tidak bisa dipulihkan.')">
+          <input type="hidden" name="action" value="empty_trash"/>
+          <input type="hidden" name="tab" value="trash"/>
+          <button class="btn-mini btn-hard-delete" type="submit">Kosongkan Trash</button>
+        </form>
+        {% endif %}
+      </div>
+
+      {% if not trashed %}
+      <div class="empty-state">
+        <div class="icon">🗑</div>
+        <div>Trash kosong — belum ada barang yang dihapus.</div>
+      </div>
+      {% else %}
       <table class="items">
         <thead>
-          <tr><th>ID</th><th>Nama</th><th>Kategori</th><th>Harga</th><th>Status</th><th>Sisa Waktu</th><th>Aksi</th></tr>
+          <tr><th></th><th>Nama</th><th>Kategori</th><th>Harga Terakhir</th><th>Status</th><th>Dihapus</th><th></th></tr>
         </thead>
         <tbody>
-          {% for it in items %}
+          {% for it in trashed %}
           <tr>
-            <td>#{{ it.id }}</td>
-            <td><strong>{{ it.name }}</strong><div style="font-size:.72rem;color:var(--muted)">{{ it.condition }}</div></td>
+            <td>{% if it.image %}<img class="thumb" src="{{ it.image }}" onerror="this.style.display='none'"/>{% endif %}</td>
+            <td><strong>{{ it.name }}</strong><div style="font-size:.72rem;color:var(--muted)">#{{ it.id }} · {{ it.condition or '—' }}</div></td>
             <td>{{ it.category }}</td>
             <td>{{ it.current_bid | rupiah }}</td>
             <td><span class="pill {{ it.status.value }}">{{ it.status.value }}</span></td>
-            <td>{{ it.timer_display }}</td>
+            <td style="color:var(--muted);font-size:.78rem">{{ it.deleted_at.strftime('%d %b %Y %H:%M') }}</td>
             <td class="row-actions">
-              <a class="btn btn-ghost btn-mini" href="{{ url_for('main.pantau', item_id=it.id) }}">Lihat</a>
-              {% if it.status.value == 'active' %}
-              <form method="POST" onsubmit="return confirm('Batalkan lelang ini?')">
-                <input type="hidden" name="action" value="cancel_item"/>
+              <form method="POST">
+                <input type="hidden" name="action" value="restore_item"/>
                 <input type="hidden" name="item_id" value="{{ it.id }}"/>
-                <button class="btn btn-outline btn-mini" type="submit">Batal</button>
+                <input type="hidden" name="tab" value="trash"/>
+                <button class="btn-mini btn-restore" type="submit">↺ Pulihkan</button>
               </form>
-              {% endif %}
-              <form method="POST" onsubmit="return confirm('Hapus barang ini permanen?')">
-                <input type="hidden" name="action" value="delete_item"/>
+              <form method="POST" onsubmit="return confirm('Hapus PERMANEN barang {{ it.name|e }}? Tidak bisa dibatalkan.')">
+                <input type="hidden" name="action" value="hard_delete_item"/>
                 <input type="hidden" name="item_id" value="{{ it.id }}"/>
-                <button class="btn btn-mini" type="submit" style="background:var(--red);color:#fff">Hapus</button>
+                <input type="hidden" name="tab" value="trash"/>
+                <button class="btn-mini btn-hard-delete" type="submit">Hapus Permanen</button>
               </form>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+      {% endif %}
     </div>
+
+    {# ── TAB: ITEMS (default) ─────────────────────────────────────────── #}
+    {% else %}
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Daftar Barang · {{ items|length }}</h3>
+        <a href="{{ url_for('main.admin_dashboard', tab='create') }}" class="btn btn-red btn-mini">+ Tambah Barang</a>
+      </div>
+
+      {% if not items %}
+      <div class="empty-state">
+        <div class="icon">📦</div>
+        <div>Belum ada barang. Klik "+ Tambah Barang" untuk membuat lelang pertama.</div>
+      </div>
+      {% else %}
+      <table class="items">
+        <thead>
+          <tr><th></th><th>Nama</th><th>Kategori</th><th>Harga</th><th>Status</th><th>Sisa Waktu</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+          <tr>
+            <td>{% if it.image %}<img class="thumb" src="{{ it.image }}" onerror="this.style.display='none'"/>{% endif %}</td>
+            <td><strong>{{ it.name }}</strong><div style="font-size:.72rem;color:var(--muted)">#{{ it.id }} · {{ it.condition or '—' }}</div></td>
+            <td>{{ it.category }}</td>
+            <td>{{ it.current_bid | rupiah }}</td>
+            <td><span class="pill {{ it.status.value }}">{{ it.status.value }}</span></td>
+            <td>{{ it.timer_display }}</td>
+            <td class="row-actions">
+              <a class="btn-mini btn-view" href="{{ url_for('main.pantau', item_id=it.id) }}">Lihat</a>
+              <a class="btn-mini btn-edit" href="{{ url_for('main.admin_edit_item', item_id=it.id) }}">✎ Edit</a>
+              {% if it.status.value == 'active' %}
+              <form method="POST" onsubmit="return confirm('Batalkan lelang ini?')">
+                <input type="hidden" name="action" value="cancel_item"/>
+                <input type="hidden" name="item_id" value="{{ it.id }}"/>
+                <input type="hidden" name="tab" value="items"/>
+                <button class="btn-mini btn-cancel" type="submit">Batal</button>
+              </form>
+              {% endif %}
+              <form method="POST" onsubmit="return confirm('Pindahkan {{ it.name|e }} ke Trash?')">
+                <input type="hidden" name="action" value="trash_item"/>
+                <input type="hidden" name="item_id" value="{{ it.id }}"/>
+                <input type="hidden" name="tab" value="items"/>
+                <button class="btn-mini btn-trash" type="submit">🗑 Hapus</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}

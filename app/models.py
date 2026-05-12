@@ -105,10 +105,15 @@ class Item(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow,
                            onupdate=datetime.utcnow, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True, index=True)  # soft delete (Trash)
 
     bids = db.relationship('Bid', backref='item', lazy='dynamic',
                            cascade='all, delete-orphan',
                            order_by='Bid.created_at.desc()')
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
 
     @property
     def time_remaining_seconds(self) -> int:

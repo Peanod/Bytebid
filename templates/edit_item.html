@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Edit Barang - ByteBid Admin{% endblock %}
+{% block head %}
+<style>
+  .edit-page { padding: 2.5rem 0; }
+  .back-btn { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); text-decoration: none; font-size: .875rem; margin-bottom: 1.25rem; }
+  .back-btn:hover { color: var(--text); }
+  .edit-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; max-width: 720px; margin: 0 auto; }
+  .edit-card h2 { font-family: 'Outfit', sans-serif; font-size: 1.4rem; margin-bottom: .25rem; }
+  .edit-card .lead { color: var(--muted); font-size: .875rem; margin-bottom: 1.5rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .preview { display: flex; gap: 1rem; align-items: center; background: var(--bg3); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; }
+  .preview img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: var(--bg2); }
+  .preview .info b { display: block; margin-bottom: .15rem; }
+  .preview .info span { color: var(--muted); font-size: .8rem; }
+  @media(max-width:600px){ .form-row{grid-template-columns:1fr} }
+</style>
+{% endblock %}
+{% block content %}
+<section class="edit-page">
+  <div class="container">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="back-btn">← Kembali ke dashboard</a>
+    <div class="edit-card">
+      <h2>Edit Barang #{{ item.id }}</h2>
+      <p class="lead">Perbarui informasi barang lelang. Perubahan tersimpan langsung ke database.</p>
+
+      <div class="preview">
+        <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.style.display='none'"/>
+        <div class="info">
+          <b>{{ item.name }}</b>
+          <span>Status: {{ item.status.value }} · Penawaran tertinggi {{ item.current_bid | rupiah }}</span>
+        </div>
+      </div>
+
+      {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
+
+      <form method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nama Barang</label>
+            <input class="form-input" name="name" value="{{ item.name }}" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-input" name="category">
+              {% for c in ['Elektronik','Kendaraan','Seni','Lainnya'] %}
+              <option value="{{ c }}" {% if item.category == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Harga Awal (Rp)</label>
+            <input class="form-input" type="number" name="start_price" min="1" value="{{ item.start_price|int }}" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Perpanjang/Persingkat (menit)</label>
+            <input class="form-input" type="number" name="extend_minutes" value="0" placeholder="Misal 30 atau -10"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Status Lelang</label>
+          <select class="form-input" name="status">
+            {% for s in ['active','scheduled','ended','cancelled'] %}
+            <option value="{{ s }}" {% if item.status.value == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kondisi</label>
+          <input class="form-input" name="condition" value="{{ item.condition or '' }}"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">URL Gambar</label>
+          <input class="form-input" name="image_url" value="{{ item.image or '' }}"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Deskripsi</label>
+          <textarea class="form-input" name="description" rows="4">{{ item.description or '' }}</textarea>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1rem">
+          <button type="submit" class="btn btn-red btn-lg">Simpan Perubahan</button>
+          <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-ghost btn-lg">Batal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

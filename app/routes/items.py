@@ -21,7 +21,8 @@ def list_items():
     status_str = (request.args.get('status') or 'active').lower()
     limit = min(int(request.args.get('limit', 50)), 200)
 
-    query = Item.query
+    # Sembunyikan item yang ada di Trash (deleted_at)
+    query = Item.query.filter(Item.deleted_at.is_(None))
     if status_str and status_str != 'all':
         try:
             st = AuctionStatus(status_str)
@@ -45,7 +46,7 @@ def list_items():
 @items_bp.route('/<int:item_id>', methods=['GET'])
 def get_item(item_id):
     item = Item.query.get(item_id)
-    if not item:
+    if not item or item.deleted_at is not None:
         return jsonify({'success': False, 'message': 'Barang tidak ditemukan'}), 404
     return jsonify({'success': True, 'item': item.to_dict(with_bids=True)})
 

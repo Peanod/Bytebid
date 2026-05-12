@@ -54,7 +54,8 @@ def inject_globals():
 @main_bp.route('/')
 def index():
     items = (Item.query
-             .filter_by(status=AuctionStatus.ACTIVE)
+             .filter(Item.status == AuctionStatus.ACTIVE,
+                     Item.deleted_at.is_(None))
              .order_by(Item.created_at.desc())
              .limit(6).all())
     return render_template('index.html', items=items)
@@ -65,7 +66,8 @@ def lelang():
     cat = request.args.get('cat', 'Semua')
     q = (request.args.get('q') or '').strip()
 
-    query = Item.query.filter_by(status=AuctionStatus.ACTIVE)
+    query = Item.query.filter(Item.status == AuctionStatus.ACTIVE,
+                              Item.deleted_at.is_(None))
     if cat and cat != 'Semua':
         query = query.filter(Item.category == cat)
     if q:
@@ -151,7 +153,9 @@ def login():
         session['user_id'] = user.id
         session['user_name'] = user.name
         session['is_admin'] = user.is_admin
-        next_url = request.args.get('next') or url_for('main.lelang')
+        # Admin diarahkan ke dashboard admin, user biasa ke katalog lelang
+        default_url = url_for('main.admin_dashboard') if user.is_admin else url_for('main.lelang')
+        next_url = request.args.get('next') or default_url
         flash(f'Selamat datang kembali, {user.name}!', 'success')
         return redirect(next_url)
 
@@ -296,6 +300,8 @@ def admin_required(view):
 def admin_dashboard():
     if request.method == 'POST':
         action = request.form.get('action')
+
+        # ── CREATE ─────────────────────────────────────────────────────────
         if action == 'create_item':
             from datetime import timedelta
             try:
@@ -321,6 +327,8 @@ def admin_dashboard():
             db.session.add(item)
             db.session.commit()
             flash(f'Barang "{item.name}" berhasil dilelang.', 'success')
+
+        # ── CANCEL (lelang dibatalkan, item tetap terlihat) ────────────────
         elif action == 'cancel_item':
             iid = int(request.form.get('item_id', 0))
             it = Item.query.get(iid)
@@ -328,24 +336,115 @@ def admin_dashboard():
                 it.status = AuctionStatus.CANCELLED
                 db.session.commit()
                 flash(f'Lelang "{it.name}" dibatalkan.', 'info')
-        elif action == 'delete_item':
+
+        # ── SOFT DELETE (masuk Trash) ──────────────────────────────────────
+        elif action == 'trash_item':
             iid = int(request.form.get('item_id', 0))
             it = Item.query.get(iid)
             if it:
+                it.deleted_at = datetime.utcnow()
+                # Status dipertahankan; barang tetap hilang dari publik karena
+                # semua public query memfilter `deleted_at IS NULL`.
+                db.session.commit()
+                flash(f'Barang "{it.name}" dipindahkan ke Trash.', 'info')
+
+        # ── RESTORE dari Trash ─────────────────────────────────────────────
+        elif action == 'restore_item':
+            iid = int(request.form.get('item_id', 0))
+            it = Item.query.get(iid)
+            if it:
+                it.deleted_at = None
+                db.session.commit()
+                flash(f'Barang "{it.name}" berhasil dipulihkan.', 'success')
+
+        # ── HARD DELETE (hapus permanen) ───────────────────────────────────
+        elif action == 'hard_delete_item':
+            iid = int(request.form.get('item_id', 0))
+            it = Item.query.get(iid)
+            if it:
+                name = it.name
                 db.session.delete(it)
                 db.session.commit()
-                flash('Barang dihapus.', 'info')
-        return redirect(url_for('main.admin_dashboard'))
+                flash(f'Barang "{name}" dihapus permanen.', 'info')
 
-    items = Item.query.order_by(Item.created_at.desc()).limit(50).all()
+        # ── KOSONGKAN TRASH ────────────────────────────────────────────────
+        elif action == 'empty_trash':
+            cnt = Item.query.filter(Item.deleted_at.isnot(None)).delete(
+                synchronize_session=False)
+            db.session.commit()
+            flash(f'Trash dikosongkan ({cnt} barang dihapus permanen).', 'info')
+
+        return redirect(url_for('main.admin_dashboard',
+                                tab=request.form.get('tab', 'items')))
+
+    tab = request.args.get('tab', 'items')
+    items = (Item.query.filter(Item.deleted_at.is_(None))
+             .order_by(Item.created_at.desc()).all())
+    trashed = (Item.query.filter(Item.deleted_at.isnot(None))
+               .order_by(Item.deleted_at.desc()).all())
     stats = {
-        'total_items': Item.query.count(),
-        'active_items': Item.query.filter_by(status=AuctionStatus.ACTIVE).count(),
-        'ended_items': Item.query.filter_by(status=AuctionStatus.ENDED).count(),
+        'total_items': Item.query.filter(Item.deleted_at.is_(None)).count(),
+        'active_items': Item.query.filter(
+            Item.status == AuctionStatus.ACTIVE,
+            Item.deleted_at.is_(None)).count(),
+        'ended_items': Item.query.filter(
+            Item.status == AuctionStatus.ENDED,
+            Item.deleted_at.is_(None)).count(),
+        'trashed_items': len(trashed),
         'total_users': User.query.count(),
         'total_bids': Bid.query.count(),
     }
-    return render_template('admin.html', items=items, stats=stats)
+    return render_template('admin.html',
+                           items=items, trashed=trashed,
+                           stats=stats, active_tab=tab)
+
+
+# ── Admin: Edit item (form terpisah) ─────────────────────────────────────────
+@main_bp.route('/admin/items/<int:item_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def admin_edit_item(item_id):
+    item = Item.query.get_or_404(item_id)
+
+    if request.method == 'POST':
+        from datetime import timedelta
+        try:
+            start_price = Decimal(str(request.form.get('start_price', item.start_price)))
+        except InvalidOperation:
+            return render_template('edit_item.html', item=item,
+                                   error='Harga awal tidak valid.')
+
+        item.name = (request.form.get('name') or item.name).strip()
+        item.category = request.form.get('category', item.category)
+        item.condition = request.form.get('condition', item.condition or '')
+        item.description = request.form.get('description', item.description or '')
+        item.image = request.form.get('image_url', item.image or '')
+        item.start_price = start_price
+        # current_bid tidak diturunkan; hanya naik kalau start_price lebih tinggi
+        if item.current_bid < start_price:
+            item.current_bid = start_price
+
+        # Perpanjang/persingkat durasi
+        try:
+            extra_min = int(request.form.get('extend_minutes', '0'))
+            if extra_min:
+                item.end_time = item.end_time + timedelta(minutes=extra_min)
+        except ValueError:
+            pass
+
+        # Update status
+        new_status = request.form.get('status')
+        if new_status:
+            try:
+                item.status = AuctionStatus(new_status)
+            except ValueError:
+                pass
+
+        item.updated_at = datetime.utcnow()
+        db.session.commit()
+        flash(f'Barang "{item.name}" berhasil diperbarui.', 'success')
+        return redirect(url_for('main.admin_dashboard'))
+
+    return render_template('edit_item.html', item=item)
 
 
 # ── Health & static helper ────────────────────────────────────────────────────
