@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Daftar Lelang - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .page-header {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+  .page-header h1 { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; }
+  .page-header h1 span { color: var(--red); }
+  .page-header p { color: var(--muted); margin-top: .5rem; }
+  .filters { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.5rem 0 1rem; }
+  .filter-btn {
+    padding: .45rem 1.1rem; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-family: inherit;
+    font-size: .875rem; transition: all .2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--card2); color: var(--white); border-color: #3a3a50;
+  }
+  .search-box {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: .65rem 1.1rem; color: var(--text);
+    font-family: inherit; font-size: .9rem; outline: none;
+    transition: border-color .2s;
+  }
+  .search-box:focus { border-color: var(--red); }
+  .search-box::placeholder { color: var(--muted); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>Daftar <span>Lelang</span> Aktif</h1>
+    <p>250+ barang sedang dalam proses penawaran sekarang</p>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    <!-- Filter -->
+    <form method="GET">
+      <div class="filters">
+        {% for cat in ['Semua', 'Elektronik', 'Kendaraan', 'Seni'] %}
+        <button type="submit" name="cat" value="{{ cat }}"
+                class="filter-btn {% if active_cat == cat %}active{% endif %}">
+          {{ cat }}
+        </button>
+        {% endfor %}
+      </div>
+      <input class="search-box" type="text" name="q" value="{{ query }}"
+             placeholder="Cari barang..." oninput="this.form.submit()"/>
+    </form>
+
+    <!-- Grid -->
+    <div class="grid-3" style="margin-top:1.5rem">
+      {% for item in items %}
+      <div class="auction-card">
+        <div class="card-img">
+          <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://via.placeholder.com/300x180/0d0d12/444?text=ByteBid'"/>
+          <span class="badge {% if item.badge == 'Segera Berakhir' %}badge-red{% else %}badge-green{% endif %}">
+            {{ item.badge }}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">{{ item.name }}</div>
+          <div class="card-sub">{{ item.condition }}</div>
+          <div class="bid-label">PENAWARAN SAAT INI</div>
+          <div class="bid-price">{{ item.current_bid | rupiah }}</div>
+          <div class="timer">{{ item.timer_display }}</div>
+        </div>
+        <div class="card-footer">
+          <a href="{{ url_for('main.ajukan', item_id=item.id) }}" class="btn btn-outline btn-block">Ajukan Penawaran →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if not items %}
+    <div style="text-align:center;padding:4rem;color:var(--muted)">
+      <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+      <div>Tidak ada barang ditemukan.</div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

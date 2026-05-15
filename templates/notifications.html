@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Notifikasi - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .notif-page { padding: 2.5rem 0; }
+  .notif-page h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; margin-bottom: 1.5rem; }
+  .notif-page h1 span { color: var(--red); }
+  .notif-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: .75rem; display: flex; gap: 1rem; align-items: flex-start; }
+  .notif-card.unread { border-left: 4px solid var(--red); }
+  .notif-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; }
+  .notif-icon.win { background: rgba(0,214,143,.15); color: var(--green); }
+  .notif-icon.lose { background: var(--bg3); color: var(--muted); }
+  .notif-icon.outbid { background: var(--red-dim); color: var(--red); }
+  .notif-icon.other { background: rgba(0,188,212,.12); color: var(--cyan); }
+  .notif-title { font-weight: 700; margin-bottom: .25rem; }
+  .notif-message { font-size: .875rem; color: var(--muted); line-height: 1.5; }
+  .notif-time { font-size: .75rem; color: var(--muted); margin-top: .5rem; }
+  .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+</style>
+{% endblock %}
+{% block content %}
+<section class="notif-page">
+  <div class="container" style="max-width:780px">
+    <h1>Notifikasi <span>Lelang</span></h1>
+
+    {% if not notifs %}
+    <div class="empty">
+      <div style="font-size:3rem;margin-bottom:1rem">🔔</div>
+      <div>Belum ada notifikasi</div>
+    </div>
+    {% endif %}
+
+    {% for n in notifs %}
+    <div class="notif-card {% if not n.is_read %}unread{% endif %}">
+      <div class="notif-icon
+        {% if n.type.value == 'win' %}win
+        {% elif n.type.value == 'lose' %}lose
+        {% elif n.type.value == 'outbid' %}outbid
+        {% else %}other{% endif %}">
+        {% if n.type.value == 'win' %}🏆
+        {% elif n.type.value == 'lose' %}🥈
+        {% elif n.type.value == 'outbid' %}⚡
+        {% else %}🔔{% endif %}
+      </div>
+      <div style="flex:1">
+        <div class="notif-title">{{ n.title or n.type.value|capitalize }}</div>
+        <div class="notif-message">{{ n.message }}</div>
+        <div class="notif-time">
+          {{ n.created_at.strftime('%d %b %Y %H:%M') }}
+          {% if n.item_id %}· <a href="{{ url_for('main.pantau', item_id=n.item_id) }}" style="color:var(--red)">Lihat barang →</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

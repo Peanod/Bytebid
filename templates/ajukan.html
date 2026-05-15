@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Ajukan Penawaran - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .bid-page {
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem; background: radial-gradient(ellipse at center, rgba(232,23,58,0.05) 0%, transparent 60%);
+  }
+  .bid-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2rem; width: 100%; max-width: 480px;
+  }
+  .item-preview {
+    display: flex; gap: 1rem; align-items: center;
+    background: var(--bg3); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;
+  }
+  .item-preview img {
+    width: 70px; height: 70px; object-fit: cover; border-radius: 8px;
+    background: var(--bg2);
+  }
+  .item-preview-name { font-weight: 700; font-size: .95rem; }
+  .item-preview-sub { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+  .current-price-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: .5rem; }
+  .current-price { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--red); }
+
+  .bid-input-wrap {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: .75rem 1rem; font-family: 'Outfit', sans-serif; font-size: 1.1rem;
+    color: var(--text); width: 100%; outline: none; margin-bottom: 1.25rem;
+    transition: border-color .2s;
+  }
+  .bid-input-wrap:focus { border-color: var(--red); }
+  .bid-note { font-size: .78rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.6; }
+  .bid-note a { color: var(--red); }
+  .bid-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 1.25rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="bid-page">
+  <div class="bid-card">
+    <div class="bid-title">Ajukan Penawaran</div>
+
+    <div class="item-preview">
+      <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://via.placeholder.com/70x70/0d0d12/444?text=BB'"/>
+      <div>
+        <div class="item-preview-name">{{ item.name }}</div>
+        <div class="item-preview-sub">{{ item.condition }}</div>
+        <div class="current-price-label">PENAWARAN TERTINGGI SAAT INI</div>
+        <div class="current-price">{{ item.current_bid | rupiah }}</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">{{ item.unique_bidders }} penawar aktif · Timer: {{ item.timer_display }}</div>
+      </div>
+    </div>
+
+    {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">PENAWARAN KAMU (Rp)</label>
+        <input class="bid-input-wrap" type="number" name="amount"
+               placeholder="19.000.000"
+               min="{{ item.current_bid + 100000 }}"
+               value="{{ item.current_bid + 500000 }}" required/>
+      </div>
+      <div class="bid-note">
+        Penawaran bersifat mengikat. Pastikan kamu siap membeli jika menang.<br>
+        Saldo minimum jika menang: <a href="#">Rp 700.000</a>
+      </div>
+      <button type="submit" class="btn btn-red btn-block" style="width:100%;padding:.85rem;border-radius:10px">
+        Konfirmasi Penawaran
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

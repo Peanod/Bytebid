@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+{% block title %}Profil Saya - ByteBid{% endblock %}
+{% block head %}
+<style>
+  /* ── PROFIL PAGE ──────────────────────────────────────────── */
+  .profil-wrap {
+    padding: 3rem 0 5rem;
+  }
+
+  /* ── HERO CARD (avatar + nama) ──────────────────────────── */
+  .hero-card {
+    background: linear-gradient(135deg, #1a1a28 0%, #1e1e2e 60%, #1a1a28 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(232,23,58,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .avatar-ring {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 3px solid var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem; font-weight: 800;
+    color: var(--white);
+    background: var(--bg3);
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+  .hero-info { flex: 1; }
+  .hero-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem; font-weight: 800;
+    margin-bottom: .25rem;
+  }
+  .hero-username {
+    font-size: .85rem; color: var(--muted);
+    margin-bottom: .75rem;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: .3rem .85rem;
+    border-radius: 20px;
+    font-size: .75rem; font-weight: 700;
+  }
+  .hero-badge.admin {
+    background: rgba(0,188,212,.1);
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  .hero-meta {
+    display: flex; flex-direction: column; align-items: flex-end; gap: .5rem;
+    font-size: .8rem; color: var(--muted);
+  }
+  .hero-meta strong { color: var(--text); }
+
+  /* ── SECTION LABEL ───────────────────────────────────────── */
+  .sec-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── DETAIL GRID ─────────────────────────────────────────── */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .detail-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    transition: border-color .2s;
+  }
+  .detail-box:hover { border-color: #3a3a55; }
+  .detail-icon {
+    font-size: 1.3rem;
+    margin-bottom: .6rem;
+  }
+  .detail-key {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: .3rem;
+  }
+  .detail-val {
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+  }
+  .detail-val.mono {
+    font-size: .85rem;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ── STAT ROW ────────────────────────────────────────────── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem; font-weight: 800;
+    color: var(--red);
+    margin-bottom: .2rem;
+  }
+  .stat-num.green { color: var(--green); }
+  .stat-num.cyan { color: var(--cyan); }
+  .stat-lbl { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+
+  /* ── KEMENANGAN / CLAIM ──────────────────────────────────── */
+  .win-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+  .win-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    transition: border-color .2s, transform .15s;
+  }
+  .win-card:hover { border-color: #3a3a55; transform: translateX(3px); }
+  .win-img {
+    width: 90px; height: 90px;
+    flex-shrink: 0;
+    background: var(--bg3);
+    overflow: hidden;
+  }
+  .win-img img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+  }
+  .win-body {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+  }
+  .win-name {
+    font-weight: 700; font-size: .95rem;
+    margin-bottom: .2rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .win-meta {
+    font-size: .78rem; color: var(--muted);
+    margin-bottom: .5rem;
+  }
+  .win-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--green);
+  }
+  .win-action {
+    padding: 1rem 1.25rem;
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: flex-end; gap: .5rem;
+  }
+  .claim-status {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .3rem .75rem;
+    border-radius: 20px;
+  }
+  .claim-status.pending {
+    background: rgba(255,193,7,.12);
+    border: 1px solid rgba(255,193,7,.4);
+    color: #ffc107;
+  }
+  .claim-status.claimed {
+    background: rgba(0,214,143,.1);
+    border: 1px solid var(--green);
+    color: var(--green);
+  }
+
+  /* ── CLAIM BUTTON ────────────────────────────────────────── */
+  .btn-claim {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: linear-gradient(135deg, #00d68f, #00b87a);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: .6rem 1.25rem;
+    font-size: .875rem; font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+  }
+  .btn-claim:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,214,143,.3);
+  }
+  .btn-claim:active { transform: translateY(0); }
+  .btn-claimed {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: .6rem 1.25rem;
+    font-size: .875rem; font-weight: 600;
+    cursor: default;
+    text-decoration: none;
+  }
+
+  /* ── EMPTY STATE ─────────────────────────────────────────── */
+  .empty-state {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    padding: 3rem;
+    text-align: center;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+  .empty-title { font-size: .9rem; font-weight: 600; margin-bottom: .35rem; color: var(--text); }
+  .empty-sub { font-size: .82rem; }
+
+  /* ── MODAL OVERLAY ───────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 480px; width: 90%;
+    position: relative;
+    animation: popIn .2s ease;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.92) translateY(10px); }
+    to   { opacity: 1; transform: scale(1)  translateY(0);     }
+  }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none; border: none;
+    color: var(--muted); font-size: 1.2rem; cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem; font-weight: 800;
+    margin-bottom: .5rem;
+  }
+  .modal-sub { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .modal-item-info {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex; gap: 1rem; align-items: center;
+  }
+  .modal-item-thumb {
+    width: 56px; height: 56px;
+    border-radius: 8px; overflow: hidden; flex-shrink: 0;
+    background: var(--card);
+  }
+  .modal-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-item-name { font-weight: 700; font-size: .9rem; margin-bottom: .25rem; }
+  .modal-item-price { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800; color: var(--green); }
+  .modal-form-group { margin-bottom: 1rem; }
+  .modal-form-group label { display: block; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .4rem; }
+  .modal-form-group input,
+  .modal-form-group textarea,
+  .modal-form-group select {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: .7rem 1rem; color: var(--text);
+    font-family: inherit; font-size: .875rem; outline: none;
+    transition: border-color .2s;
+  }
+  .modal-form-group input:focus,
+  .modal-form-group textarea:focus,
+  .modal-form-group select:focus { border-color: var(--green); }
+  .modal-form-group textarea { resize: vertical; min-height: 80px; }
+  .modal-actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+  .modal-actions .btn { flex: 1; }
+
+  /* ── TOAST ───────────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    background: var(--card2);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: .9rem 1.75rem;
+    border-radius: 12px;
+    font-size: .875rem; font-weight: 600;
+    box-shadow: 0 8px 28px rgba(0,0,0,.5);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity .3s, transform .3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media(max-width: 768px) {
+    .hero-card { flex-direction: column; text-align: center; }
+    .hero-meta { align-items: center; }
+    .detail-grid { grid-template-columns: 1fr 1fr; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .win-img { width: 70px; height: 70px; }
+  }
+  @media(max-width: 520px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .win-card { flex-direction: column; align-items: flex-start; }
+    .win-img { width: 100%; height: 160px; }
+    .win-action { width: 100%; align-items: flex-start; padding-top: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profil-wrap">
+  <div class="container" style="max-width:860px">
+
+    {# ── HERO CARD ─────────────────────────────────────────── #}
+    <div class="hero-card">
+      <div class="avatar-ring">
+        {{ current_user.name[:2] }}
+      </div>
+      <div class="hero-info">
+        <div class="hero-name">{{ current_user.name }}</div>
+        <div class="hero-username">@{{ current_user.username }}</div>
+        {% if current_user.is_admin %}
+          <span class="hero-badge admin">⚙ Administrator</span>
+        {% else %}
+          <span class="hero-badge">🔥 Pelelang Aktif</span>
+        {% endif %}
+      </div>
+      <div class="hero-meta">
+        <div>Bergabung sejak</div>
+        <strong>{{ current_user.created_at.strftime('%d %b %Y') }}</strong>
+        <a href="{{ url_for('main.lelang') }}" class="btn btn-red" style="margin-top:.5rem">Lihat Lelang →</a>
+      </div>
+    </div>
+
+    {# ── PERSONAL DETAIL ───────────────────────────────────── #}
+    <div class="sec-label">Informasi Akun</div>
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="detail-icon">👤</div>
+        <div class="detail-key">Nama Lengkap</div>
+        <div class="detail-val">{{ current_user.name }}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-icon">🏷</div>
+        <div class="detail-key">Username</div>
+        <div class="detail-val mono">{{ current_user.username }}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-icon">📧</div>
+        <div class="detail-key">Email</div>
+        <div class="detail-val mono" style="font-size:.8rem">{{ current_user.email }}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-icon">🆔</div>
+        <div class="detail-key">ID Pengguna</div>
+        <div class="detail-val mono">#BB-{{ '%04d' % current_user.id }}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-icon">🛡</div>
+        <div class="detail-key">Peran</div>
+        <div class="detail-val">{{ 'Administrator' if current_user.is_admin else 'Pengguna' }}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-icon">📅</div>
+        <div class="detail-key">Terakhir Diperbarui</div>
+        <div class="detail-val" style="font-size:.85rem">{{ current_user.updated_at.strftime('%d %b %Y') }}</div>
+      </div>
+    </div>
+
+    {# ── STATISTIK ─────────────────────────────────────────── #}
+    <div class="sec-label">Statistik</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-num">{{ total_bids }}</div>
+        <div class="stat-lbl">Total Penawaran</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num green">{{ won_items|length }}</div>
+        <div class="stat-lbl">Lelang Dimenangkan</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num cyan">{{ active_bids }}</div>
+        <div class="stat-lbl">Penawaran Aktif</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" style="color:var(--muted)">{{ unclaimed }}</div>
+        <div class="stat-lbl">Belum Di-Claim</div>
+      </div>
+    </div>
+
+    {# ── KEMENANGAN & CLAIM ────────────────────────────────── #}
+    <div class="sec-label">Lelang Yang Dimenangkan</div>
+
+    {% if won_items %}
+    <div class="win-list">
+      {% for item in won_items %}
+      <div class="win-card">
+        <div class="win-img">
+          <img src="{{ item.image }}" alt="{{ item.name }}"
+               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 90 90%22><rect fill=%22%231a1a24%22 width=%2290%22 height=%2290%22/><text x=%2245%22 y=%2252%22 text-anchor=%22middle%22 fill=%22%234a4a6a%22 font-size=%2230%22>📦</text></svg>'"/>
+        </div>
+        <div class="win-body">
+          <div class="win-name">{{ item.name }}</div>
+          <div class="win-meta">
+            ID #BB-{{ '%04d' % item.id }} ·
+            Kategori: {{ item.category }} ·
+            Selesai {{ item.end_time.strftime('%d %b %Y') }}
+          </div>
+          <div class="win-price">
+            {{ 'Rp {:,.0f}'.format(item.current_bid).replace(',','.') }}
+          </div>
+        </div>
+        <div class="win-action">
+          {% set is_claimed = item.id in claimed_ids %}
+          {% if is_claimed %}
+            <span class="claim-status claimed">✓ Sudah Diklaim</span>
+            <span class="btn-claimed">Selesai</span>
+          {% else %}
+            <span class="claim-status pending">⏳ Menunggu Klaim</span>
+            <button class="btn-claim"
+                    onclick="openClaimModal({{ item.id }}, '{{ item.name|replace("'","\\'")|e }}', '{{ item.image|e }}', '{{ 'Rp {:,.0f}'.format(item.current_bid).replace(',','.') }}')">
+              🏆 Claim Hadiah
+            </button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">Belum Ada Kemenangan</div>
+      <div class="empty-sub">Ikuti lelang aktif dan jadilah penawar tertinggi!</div>
+    </div>
+    {% endif %}
+
+    {# ── QUICK ACTIONS ─────────────────────────────────────── #}
+    <div class="sec-label">Tindakan Cepat</div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a href="{{ url_for('main.lelang') }}" class="btn btn-red">🔥 Ikuti Lelang</a>
+      <a href="{{ url_for('main.notifications') }}" class="btn btn-ghost">🔔 Notifikasi</a>
+      <a href="{{ url_for('main.forgot_password') }}" class="btn btn-ghost">🔒 Ubah Password</a>
+      <a href="{{ url_for('main.logout') }}" class="btn btn-ghost" style="margin-left:auto">Keluar</a>
+    </div>
+
+  </div>
+</section>
+
+{# ── MODAL CLAIM ───────────────────────────────────────────── #}
+<div class="modal-overlay" id="claimModal" onclick="if(event.target===this)closeClaimModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeClaimModal()">✕</button>
+    <div style="font-size:1.8rem;margin-bottom:.5rem">🏆</div>
+    <div class="modal-title">Klaim Hadiah Kemenangan</div>
+    <div class="modal-sub">Isi detail pengiriman untuk barang yang kamu menangkan.</div>
+
+    <div class="modal-item-info" id="claimItemInfo">
+      <div class="modal-item-thumb"><img id="claimThumb" src="" alt=""/></div>
+      <div>
+        <div class="modal-item-name" id="claimItemName">—</div>
+        <div class="modal-item-price" id="claimItemPrice">—</div>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('main.claim_item') }}">
+      <input type="hidden" name="item_id" id="claimItemId" value=""/>
+
+      <div class="modal-form-group">
+        <label>Nama Penerima</label>
+        <input type="text" name="recipient_name"
+               value="{{ current_user.name }}"
+               placeholder="Nama lengkap penerima" required/>
+      </div>
+      <div class="modal-form-group">
+        <label>Nomor Telepon</label>
+        <input type="tel" name="phone"
+               placeholder="08xxxxxxxxxx" required/>
+      </div>
+      <div class="modal-form-group">
+        <label>Alamat Lengkap</label>
+        <textarea name="address" placeholder="Jalan, No. rumah, RT/RW, Kelurahan, Kecamatan…" required></textarea>
+      </div>
+      <div class="modal-form-group">
+        <label>Kota / Kabupaten</label>
+        <input type="text" name="city" placeholder="Contoh: Semarang" required/>
+      </div>
+      <div class="modal-form-group">
+        <label>Kode Pos</label>
+        <input type="text" name="postal_code" placeholder="50234" maxlength="6"/>
+      </div>
+      <div class="modal-form-group">
+        <label>Catatan Pengiriman (opsional)</label>
+        <input type="text" name="notes" placeholder="Titip ke satpam, dll."/>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeClaimModal()">Batal</button>
+        <button type="submit" class="btn btn-claim" style="justify-content:center">
+          Kirim Klaim →
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── TOAST ─────────────────────────────────────────────────── #}
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openClaimModal(id, name, img, price) {
+    document.getElementById('claimItemId').value  = id;
+    document.getElementById('claimItemName').textContent = name;
+    document.getElementById('claimItemPrice').textContent = price;
+    const thumb = document.getElementById('claimThumb');
+    thumb.src = img || '';
+    document.getElementById('claimModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeClaimModal() {
+    document.getElementById('claimModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function showToast(msg, color) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = color || 'var(--green)';
+    t.style.color       = color || 'var(--green)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // Tampilkan flash dari query-param (setelah redirect claim)
+  const params = new URLSearchParams(location.search);
+  if (params.get('claimed') === '1') {
+    showToast('✓ Klaim berhasil! Kami akan segera menghubungi Anda.', 'var(--green)');
+    history.replaceState({}, '', location.pathname);
+  }
+
+  // Tutup modal dengan Esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeClaimModal();
+  });
+</script>
+{% endblock %}

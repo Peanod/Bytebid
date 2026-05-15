@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Tentang - ByteBid{% endblock %}
+{% block head %}
+<style>
+  .about-hero { padding: 4rem 0; }
+  .about-hero h1 { font-family: 'Outfit', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; }
+  .about-hero h1 span { color: var(--red); }
+  .about-hero p { color: var(--muted); margin-top: .75rem; max-width: 580px; line-height: 1.7; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    margin: 2.5rem 0;
+  }
+  .stat-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; text-align: center;
+  }
+  .stat-box .val { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; }
+  .stat-box .lbl { font-size: .78rem; color: var(--muted); margin-top: .25rem; }
+
+  .values-section { margin: 3rem 0; }
+  .values-section h2 { font-size: .85rem; font-weight: 600; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .5rem; }
+  .values-section h3 { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .value-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;
+  }
+  .value-icon { font-size: 1.5rem; margin-bottom: .75rem; }
+  .value-title { font-weight: 700; margin-bottom: .5rem; }
+  .value-desc { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+
+  .team-section { margin: 3rem 0; }
+  .team-section h2 { font-size: .85rem; font-weight: 600; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .5rem; }
+  .team-section h3 { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  .team-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; text-align: center;
+  }
+  .team-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800;
+    color: #fff; margin: 0 auto .75rem;
+  }
+  .team-name { font-size: .8rem; font-weight: 700; margin-bottom: .25rem; }
+  .team-role { font-size: .75rem; color: var(--muted); margin-bottom: .25rem; }
+  .team-nim { font-size: .7rem; color: var(--muted); }
+
+  .cta-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2.5rem; text-align: center; margin-top: 2rem; margin-bottom: 2rem;
+  }
+  .cta-box h3 { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: .5rem; }
+  .cta-box p { color: var(--muted); margin-bottom: 1.5rem; font-size: .9rem; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+  @media(max-width:768px) {
+    .stat-grid { grid-template-columns: repeat(2,1fr); }
+    .values-grid { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="about-hero">
+      <h1>Platform Lelang yang<br><span>Transparan</span></h1>
+      <p>ByteBid adalah sistem lelang berbasis web yang dikembangkan sebagai proyek rekayasa perangkat lunak oleh mahasiswa Teknik Komputer Universitas Diponegoro. Kami membangun platform yang transparan, real-time, dan mudah digunakan untuk mendemokratisasi proses lelang.</p>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="val" style="color:var(--red)">250+</div>
+        <div class="lbl">Barang dilelang</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--cyan)">Real Time</div>
+        <div class="lbl">Update penawaran</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--green)">3 Kat.</div>
+        <div class="lbl">Elektronik, Kendaraan, Seni</div>
+      </div>
+      <div class="stat-box">
+        <div class="val">2026</div>
+        <div class="lbl">Didirikan</div>
+      </div>
+    </div>
+
+    <!-- Values -->
+    <div class="values-section">
+      <div class="values-section h2">NILAI KAMI</div>
+      <div class="values-section h3">Apa yang kami perjuangkan</div>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">🔍</div>
+          <div class="value-title">Transparansi</div>
+          <div class="value-desc">Setiap penawaran tercatat secara terbuka. Tidak ada manipulasi harga atau informasi tersembunyi dari sistem.</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">⚡</div>
+          <div class="value-title">Real-time</div>
+          <div class="value-desc">Harga dan riwayat penawaran diperbarui secara langsung tanpa perlu refresh atau halaman manual.</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🌐</div>
+          <div class="value-title">Inklusif</div>
+          <div class="value-desc">Siapa saja bisa ikut lelang. Tidak ada batas minimum atau biaya pendaftaran yang menghalangi.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team -->
+    <div class="team-section">
+      <div class="team-section h2">TIM KAMI</div>
+      <div class="team-section h3">Teknik Komputer - Universitas Diponegoro</div>
+      {% set _team = team or [
+        {'name':'Anindya Fairuz Az Zahra','role':'Project Manager','nim':'21120124120018','initial':'AF','color':'#e8173a'},
+        {'name':'Lionel Jeremi P. Siahaan','role':'Programmer','nim':'21120124130067','initial':'LJ','color':'#00bcd4'},
+        {'name':'Gotara Parasdya Abimanyu','role':'Programmer','nim':'21120124140157','initial':'GP','color':'#00d68f'},
+        {'name':'Finodi','role':'UI/UX Designer','nim':'21120124140138','initial':'FN','color':'#a855f7'}
+      ] %}
+      <div class="team-grid">
+        {% for member in _team %}
+        <div class="team-card">
+          <div class="team-avatar" style="background:{{ member.color }}">{{ member.initial }}</div>
+          <div class="team-name">{{ member.name }}</div>
+          <div class="team-role">{{ member.role }}</div>
+          <div class="team-nim">{{ member.nim }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+      <h3>Tertarik ikut berkontribusi?</h3>
+      <p>ByteBid terus berkembang. Jadilah bagian dari komunitas lelang digital Indonesia.</p>
+      <div class="cta-btns">
+        <a href="{{ url_for('main.lelang') }}" class="btn btn-red btn-lg">Mulai Lelang</a>
+        <a href="#" class="btn btn-outline btn-lg">Hubungi Kami</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
